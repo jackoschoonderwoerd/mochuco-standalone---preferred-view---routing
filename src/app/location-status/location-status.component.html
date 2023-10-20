@@ -1,0 +1,31 @@
+<main>
+    <button mat-raised-button
+        (click)="onAllVenues()">all venues</button>
+    <!-- <button mat-raised-button
+        class="inner-html"
+        (click)="onSelectedVenue()"
+        [innerHTML]="innerHtmlVenueName">
+    </button> -->
+    <button mat-raised-button
+        color="primary"
+        *ngIf="innerHtmlVenueName">
+        <a routerLink="'/venue'"
+            class="inner-html"
+            (click)="onSelectedVenue()"
+            [innerHTML]="createInnerHtmlVenue()">
+        </a>
+    </button>
+    <button mat-raised-button
+        color="warn"
+        *ngIf="innerHtmlItemName"
+        class="inner-html"
+        (click)="onSelectedItem()"
+        [innerHTML]="innerHtmlItemName">
+    </button>
+    <button class="inner-html"
+        *ngIf="innerHtmlLSCLanguage"
+        mat-raised-button
+        disabled="true"
+        [innerHTML]="innerHtmlLSCLanguage">
+    </button>
+</main>

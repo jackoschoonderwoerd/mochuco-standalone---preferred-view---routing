@@ -1,0 +1,48 @@
+.app-scan-result {
+    mat-spinner {
+        margin: 3rem auto;
+    }
+    .scan-results-component {
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        max-width: 375px;
+        margin: auto;
+        background-color: white;
+        .name {
+            position: fixed;
+            width: 100%;
+            max-width: 375px;
+            height: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: lightblue;
+            text-transform: uppercase;
+            font-weight: 500;
+            text-align: center;
+        }
+        .scrollable {
+            // outline: 5px solid red;
+
+            margin-top: 2.5rem;
+            img {
+                width: 100%;
+            }
+            padding: 1rem;
+            .description {
+                // border: 1px solid black;
+                // p {
+                //     color: red;
+                //     a {
+                //         color: black;
+                //         border: 1px solid black;
+                //     }
+                // }
+            }
+            audio {
+                width: 100%;
+            }
+        }
+    }
+}

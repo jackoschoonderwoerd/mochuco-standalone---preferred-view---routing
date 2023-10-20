@@ -1,0 +1,28 @@
+<div class="item-image-component nested-component">
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+    <div class="header-js">item image</div>
+    <div class="not-is-loading"
+        *ngIf="!isLoading">
+
+        <input #fileInput
+            style="display: none;"
+            type="file"
+            (change)="onItemImageInputChange($event)">
+        <div class="image-container"
+            *ngIf="(item$|async)?.imageUrl">
+            <img [src]="(item$|async)?.imageUrl"
+                alt="">
+        </div>
+        <div class="no-logo"
+            *ngIf="!(item$|async)?.imageUrl">no image selected</div>
+        <button mat-raised-button
+            color="primary"
+            (click)="fileInput.click()">{{(item$|async)?.imageUrl ? 'update image' :'select image'}}</button>
+        <button class="delete-logo"
+            (click)="onDeleteItemImage()"
+            mat-raised-button
+            *ngIf="(item$|async)?.imageUrl">
+            delete image
+        </button>
+    </div>
+</div>

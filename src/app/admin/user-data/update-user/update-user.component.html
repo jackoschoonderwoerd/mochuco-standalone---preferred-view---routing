@@ -1,0 +1,18 @@
+<form [formGroup]="form">
+    <mat-form-field>
+        <label for="displayName">display name</label>
+        <input type="text"
+            matInput
+            formControlName="name">
+    </mat-form-field>
+
+    <button class="confirm"
+        mat-raised-button
+        color="primary"
+        (click)="onConfirm()">confirm</button>
+    <button class="cancel"
+        mat-raised-button
+        color="primary"
+        (click)="onCancel()">cancel</button>
+
+</form>

@@ -1,0 +1,29 @@
+.app-venues {
+    .venues-container {
+        padding: 1rem;
+        margin: auto;
+        .venues {
+            padding: 2rem;
+            background-color: lightgray;
+            max-width: 30rem;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            .venue {
+                background-color: wheat;
+                border: 1px solid black;
+                align-items: center;
+                padding: 0.3rem 1rem;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                .buttons {
+                    // border: 1px solid red;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                }
+            }
+        }
+    }
+}

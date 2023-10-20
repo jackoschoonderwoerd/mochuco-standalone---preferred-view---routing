@@ -1,0 +1,13 @@
+<div class="visitor-select-language-component">
+    <div class="selection"
+        *ngIf="languages.length > 0">
+        <button mat-raised-button
+            color="primary"
+            *ngFor="let language of languages"
+            (click)="onLanguage(language)">{{language}}</button>
+    </div>
+    <div *ngIf="languages.length === 0"
+        class="no-selection">
+        No other languages available
+    </div>
+</div>

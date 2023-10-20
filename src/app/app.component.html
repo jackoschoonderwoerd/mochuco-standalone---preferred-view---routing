@@ -1,0 +1,30 @@
+<mat-sidenav-container>
+    <mat-sidenav #sidenav
+        role="navigation">
+        <app-sidenav (closeSidenav)="sidenav.close()"></app-sidenav>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <app-header (sidenavToggle)="sidenav.open()"></app-header>
+
+        <main>
+            <!-- <google-map></google-map> -->
+            <!-- <app-location-status *ngIf="someoneIsLoggedIn"></app-location-status> -->
+            <router-outlet></router-outlet>
+            <div class="filler"></div>
+        </main>
+        <app-footer></app-footer>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+<!-- <app-tests></app-tests> -->
+<!-- <app-header></app-header>
+<main>
+    <router-outlet></router-outlet>
+</main>
+<app-footer></app-footer> -->
+<!-- <qrcode #parent
+                    [imageSrc]="logoPath"
+                    [qrdata]="qrData"
+                    [width]="width"
+                    [imageHeight]="imageHeight"
+                    [imageWidth]="imageWidth"
+                    [errorCorrectionLevel]="'M'"></qrcode> -->

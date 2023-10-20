@@ -1,0 +1,28 @@
+<div class="app-language-description nested-component">
+
+    <div class="header-js">lsc description</div>
+
+    <form [formGroup]="form">
+        <div class="NgxEditor__Wrapper">
+            <ngx-editor-menu [editor]="editor"
+                [toolbar]="toolbar"> </ngx-editor-menu>
+            <ngx-editor [editor]="editor"
+                (keyup)="onDescriptionAltered()"
+                spellcheck="false"
+                formControlName="editorContent"> </ngx-editor>
+        </div>
+    </form>
+    <!-- <div class="html"
+        [innerHTML]="editorContent"></div> -->
+    <button [disabled]="form.invalid"
+        [ngClass]="descriptionAltered ? 'descriptionAltered':''"
+        mat-raised-button
+        color="primary"
+        (click)="onSubmitDescriptionInput()">submit description</button>
+
+    <!-- <div class="raw-html"
+
+        *ngIf="isAdmin$|async">
+        {{(lsc$|async)?.description}}
+    </div> -->
+</div>

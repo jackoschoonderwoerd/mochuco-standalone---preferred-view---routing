@@ -1,0 +1,10 @@
+<div *ngIf="!insufficientDataForQr"
+    class="venue-local-qr-component">
+
+    <div class="title">LOCAL</div>
+    <qrcode (qrCodeURL)="onChangeURL($event)"
+        [qrdata]="qrDataString"
+        [width]="getWidth()"
+        [errorCorrectionLevel]="'M'"></qrcode>
+    <div class="venue-name">{{selectedVenue.name}}</div>
+</div>

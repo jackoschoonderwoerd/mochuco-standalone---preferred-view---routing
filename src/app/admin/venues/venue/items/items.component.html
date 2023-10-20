@@ -1,0 +1,19 @@
+<div class="app-items-component nested-component">
+
+    <div class="properties header-js"
+        *ngIf="(items$|async)?.length">items for this venue</div>
+    <div *ngIf="(items$|async)?.length === 0"
+        class="no-items">no items yet for this venue</div>
+    <div class="items"
+        *ngIf="(items$|async)?.length">
+        <div class="item"
+            *ngFor="let item of items$|async">
+            <app-item [ngClass]="{'is-main-page': item.isMainPage === true}"
+                [item]="item"></app-item>
+        </div>
+    </div>
+    <button class="add-item"
+        mat-raised-button
+        color="primary"
+        (click)="onAddItem()">add item</button>
+</div>

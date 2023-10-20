@@ -1,0 +1,20 @@
+.app-venue-name {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    .header-js {
+        .content {
+            text-transform: capitalize;
+        }
+    }
+    // padding: 1rem;
+    // background-color: lightgray;
+    form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        input {
+            text-transform: capitalize;
+        }
+    }
+}

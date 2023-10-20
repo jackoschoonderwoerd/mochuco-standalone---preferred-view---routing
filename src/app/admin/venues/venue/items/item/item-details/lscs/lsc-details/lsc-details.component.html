@@ -1,0 +1,27 @@
+<div class="lsc-details-component child-component">
+    <button class="back-to-item-details"
+        mat-raised-button
+        color="primary"
+        (click)="onBackToItemDetails()">back to item details</button>
+
+    <div class="header-js">
+        <span class="language">{{(lsc$|async)?.language}}</span>
+        <span class="title">language specific content for:</span>
+        <span class="content">{{selectedItem?.name}}</span>
+    </div>
+
+
+
+
+    <app-lsc-language></app-lsc-language>
+
+    <app-lsc-preview>
+    </app-lsc-preview>
+
+    <app-lsc-name *ngIf="editmode"></app-lsc-name>
+
+    <app-lsc-description *ngIf="editmode"></app-lsc-description>
+
+    <app-select-audio *ngIf="editmode"></app-select-audio>
+
+</div>

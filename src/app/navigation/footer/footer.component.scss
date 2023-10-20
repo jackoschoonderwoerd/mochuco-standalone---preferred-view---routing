@@ -1,0 +1,17 @@
+.footer-component {
+    padding: 0.3rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    color: white;
+    height: 3rem;
+    .open-select-language {
+        cursor: pointer;
+    }
+}
+
+.backdropBackground {
+    background-color: red;
+    backdrop-filter: blur(4px);
+}

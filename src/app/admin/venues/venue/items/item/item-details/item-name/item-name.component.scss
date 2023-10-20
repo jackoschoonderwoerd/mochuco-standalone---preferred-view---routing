@@ -1,0 +1,17 @@
+.app-item-name {
+    // background-color: lightgray;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    // padding: 1rem;
+    form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        width: 100%;
+    }
+}
+.input-changed {
+    border: 3px solid red;
+}

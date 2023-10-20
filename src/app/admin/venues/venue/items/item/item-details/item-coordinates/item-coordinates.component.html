@@ -1,0 +1,29 @@
+<div class="item-coordinates-component nested-component">
+
+    <div class="header-js">coordinates</div>
+    <div class="current-coordinates"
+        *ngIf="(adminSelectedItem$|async)?.coordinates">
+        <div class="latitude"><span>latitude:&nbsp;</span>{{(adminSelectedItem$|async)?.coordinates.latitude}}</div>
+        <div class="longitude"><span>longitude:&nbsp;</span>{{(adminSelectedItem$|async)?.coordinates.longitude}}</div>
+    </div>
+    <form [formGroup]="form">
+        <mat-form-field>
+            <label for="">latitude</label>
+            <input type="text"
+                (keydown)="onInputKeyDown()"
+                matInput
+                formControlName="latitude">
+        </mat-form-field>
+        <mat-form-field>
+            <label for="">longitude</label>
+            <input type="text"
+                (keydown)="onInputKeyDown()"
+                matInput
+                formControlName="longitude">
+        </mat-form-field>
+        <button [class.input-changed]="inputChanged"
+            mat-raised-button
+            color="primary"
+            (click)="onUpdateCoordinates()">update coordinates</button>
+    </form>
+</div>

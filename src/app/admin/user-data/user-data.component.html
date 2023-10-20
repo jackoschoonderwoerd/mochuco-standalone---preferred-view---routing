@@ -1,0 +1,26 @@
+<main>
+    <div class="user">
+        <div class="display-name">
+            <span>
+                name:
+            </span>
+            <span>
+                {{afAuth.currentUser?.displayName}}
+            </span>
+            <button mat-mini-fab
+                color="primary"
+                (click)="onEditUsername()">
+                <mat-icon aria-hidden="false"
+                    aria-label="Example home icon"
+                    fontIcon="edit"></mat-icon>
+            </button>
+        </div>
+        <div class="email">
+            <span>email:</span>
+            <span>
+                {{afAuth.currentUser?.email}}
+            </span>
+        </div>
+    </div>
+</main>
+<!-- {{afAuth.currentUser|json}} -->

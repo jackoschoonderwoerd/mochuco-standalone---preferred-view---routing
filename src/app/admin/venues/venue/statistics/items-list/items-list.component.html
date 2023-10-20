@@ -1,0 +1,23 @@
+<div class="items-list-component nested-component">
+    <button mat-raised-button
+        color="primary"
+        (click)="onBackTodetails()">back to venue details</button>
+    <div class="header-js">
+        <div class="title">statistics for venue</div>
+        <div class="name">{{venue.name}}</div>
+    </div>
+    <ul class="items-list">
+        <li class="items-list-item"
+            *ngFor="let item of items">
+            <button [color]="item.id === selectedItemId ? 'warn' : 'primary'"
+                mat-mini-fab
+                (click)="onGetStats(item.id, i)">
+                <mat-icon>info</mat-icon>
+            </button>
+            <div class="name">
+                {{item.name}}
+            </div>
+        </li>
+    </ul>
+    <app-item-stats></app-item-stats>
+</div>

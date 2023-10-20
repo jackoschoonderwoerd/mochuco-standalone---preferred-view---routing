@@ -1,0 +1,22 @@
+.item-qr-component {
+    border: 5px solid red;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: lightgray;
+    .location {
+        text-align: center;
+        background-color: red;
+        padding: 0.5rem;
+        color: white;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+    qrcode {
+        margin: auto;
+    }
+    .item-name {
+        text-align: center;
+    }
+}

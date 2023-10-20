@@ -1,0 +1,22 @@
+.item-image-component {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    // padding: 1rem;
+    // background-color: lightgray;
+    mat-spinner {
+        margin: auto;
+    }
+    .not-is-loading {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        .image-container {
+            max-width: 1fr;
+            border: 1px solid black;
+            img {
+                width: 100%;
+            }
+        }
+    }
+}

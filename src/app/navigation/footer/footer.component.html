@@ -1,0 +1,17 @@
+<main class="footer-component">
+    <a class="open-select-language"
+        (click)="onOpenSelectLanguage()">
+        <i class="material-icons">language</i>
+        <!-- <mat-icon aria-hidden="false"
+            aria-label="Example home icon"
+            fontIcon="scanner"></mat-icon> -->
+    </a>
+
+    <a routerLink="scanner"
+        [routerLinkActiveOptions]="{ exact: true}"
+        routerLinkActive="linkActive">
+        <mat-icon aria-hidden="false"
+            aria-label="Example home icon"
+            fontIcon="scanner"></mat-icon>
+    </a>
+</main>

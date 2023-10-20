@@ -1,0 +1,36 @@
+<div class="language-preview-component nested-component">
+
+    <div class="header-js">preview</div>
+
+    <div class="preview">
+
+        <app-header></app-header>
+        <div class="preview-content">
+
+            <div *ngIf="name"
+                class="name"
+                [innerHTML]="name">
+
+            </div>
+            <div class="overflow">
+                <img *ngIf="(item$|async)?.imageUrl"
+                    [src]="(item$|async)?.imageUrl"
+                    alt="">
+                <!-- <ngx-editor></ngx-editor> -->
+                <!-- <app-lsc-description></app-lsc-description> -->
+                <div class="description"
+                    [innerHTML]="description">
+                </div>
+            </div>
+            <div class="audio">
+                <audio *ngIf="(lsc$|async)?.audioUrl"
+                    [src]="(lsc$|async)?.audioUrl"
+                    controls="controls"></audio>
+
+            </div>
+
+        </div>
+
+        <app-footer></app-footer>
+    </div>
+</div>

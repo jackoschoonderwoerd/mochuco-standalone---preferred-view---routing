@@ -1,0 +1,7 @@
+scanner :https://www.npmjs.com/package/ngx-scanner-qrcode
+scanner: https://github.com/id1945/ngx-scanner-qrcode#readme
+scanner: https://stackblitz.com/edit/angular-ngx-scanner-qrcode?file=src%2Fapp%2Fapp.component.html
+
+
+qr code generator: https://www.npmjs.com/package/angularx-qrcode
+qr code generator: https://cordobo.github.io/angularx-qrcode/

@@ -1,0 +1,25 @@
+<div class="item">
+
+    <div class="name">
+        &nbsp;
+        <span *ngIf="!editmode">{{item.name}}</span>
+    </div>
+    <div class="buttons">
+        <button class="edit"
+            mat-mini-fab
+            color="primary"
+            (click)="onItemDetails()">
+            <mat-icon aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="search"></mat-icon>
+        </button>
+        <button class="edit"
+            mat-mini-fab
+            color="warn"
+            (click)="onDeleteItem()">
+            <mat-icon aria-hidden="false"
+                aria-label="Example home icon"
+                fontIcon="delete"></mat-icon>
+        </button>
+    </div>
+</div>

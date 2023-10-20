@@ -1,0 +1,83 @@
+<mat-toolbar color="primary">
+
+    <div class="toolbar-left">
+        <a (click)="onMochucoLogo()"
+            class="home"
+            [routerLinkActiveOptions]="{ exact: true}"
+            routerLinkActive="linkActive">
+            <img src="./../../../assets/images/logos/2023-0101 Mochuco - Logo transparant (1).png"
+                alt="">
+        </a>
+
+        <div class="visitor-selected-view"
+            *ngIf="(isAdmin$|async)">{{(visitorSelectedView$|async).substring(0, 2)}}</div>
+        <a href="">V3</a>
+    </div>
+
+
+
+    <div class="toolbar-right">
+
+
+        <a class="streetview"
+            *ngIf="(visitorSelectedView$|async) !== 'item'"
+            (click)="toItem()">
+            <mat-icon>streetview</mat-icon>
+        </a>
+
+        <a *ngIf="(visitorSelectedView$|async) !== 'main-page' && (visitorMainPageId$|async) != ''"
+            class="venue-logo"
+            (click)="onVenueLogo()">
+            <img [src]="venueLogoUrl"
+                alt="VL">
+        </a>
+
+        <a class="venues"
+            *ngIf="(user$|async)"
+            routerLink="admin/venues"
+            (click)="onVenues()"
+            [routerLinkActiveOptions]="{ exact: true}"
+            routerLinkActive="linkActive">
+            <span class="material-icons">
+                library_books
+            </span>
+        </a>
+
+
+        <a class="account"
+            *ngIf="(user$|async)"
+            routerLink="admin/user-data"
+            [routerLinkActiveOptions]="{ exact: true}"
+            routerLinkActive="linkActive">
+            <span class="material-icons">
+                account_circle
+            </span>
+        </a>
+
+
+
+        <a class="admin"
+            *ngIf="(isAdmin$|async)"
+            routerLink="tests"><i class="material-icons">admin_panel_settings</i></a>
+
+        <a class="logout"
+            *ngIf="(user$|async)"
+            (click)="onLogout()">
+            <span class="material-icons">
+                logout
+            </span>
+        </a>
+
+
+        <a class="login"
+            *ngIf="!(user$|async)"
+            (click)="onLogIn()">
+            <span class="material-icons">
+                login
+            </span>
+        </a>
+
+    </div>
+
+
+</mat-toolbar>

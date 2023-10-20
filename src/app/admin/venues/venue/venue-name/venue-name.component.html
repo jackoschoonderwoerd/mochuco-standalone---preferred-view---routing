@@ -1,0 +1,22 @@
+<div class="app-venue-name nested-component">
+    <div class="header-js">
+        <span class="title">venue name:</span>&nbsp;
+        <span class="content">{{(venue$|async)?.name}}</span>
+
+    </div>
+
+
+    <form [formGroup]="form">
+        <mat-form-field>
+            <mat-label>name</mat-label>
+            <input type="text"
+                matInput
+                formControlName="name">
+        </mat-form-field>
+        <button class="venue"
+            [disabled]="form.invalid"
+            mat-raised-button
+            color="primary"
+            (click)="onAddOrUpdateVenue()">{{editmode ? 'update venue name':'add venue'}}</button>
+    </form>
+</div>

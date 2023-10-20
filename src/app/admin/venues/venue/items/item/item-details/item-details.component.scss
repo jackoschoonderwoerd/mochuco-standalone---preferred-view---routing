@@ -1,0 +1,52 @@
+.item-details-component {
+    max-width: 80rem;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr;
+    grid-template-columns: repeat (8, auto);
+
+    gap: 1rem;
+    // margin: 1rem auto 0;
+    // padding: 2rem;
+    .back-to-venue-details {
+        grid-column: 1/-1;
+        grid-row: 1/2;
+    }
+
+    .header-js {
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        padding: 0.5rem 2rem;
+
+        grid-column: 1/-1;
+        grid-row: 2/3;
+    }
+    app-item-name {
+        grid-column: 1/3;
+        grid-row: 3/4;
+    }
+    app-item-image {
+        grid-column: 1/2;
+        grid-row: 4/5;
+    }
+    app-item-qr {
+        grid-column: 2/3;
+        grid-row: 4/5;
+    }
+    app-item-coordinates {
+        grid-column: 1/3;
+        grid-row: 5/6;
+    }
+    app-item-is-main-page {
+        grid-column: 1/3;
+        grid-row: 6/7;
+    }
+    app-item-qr-local {
+        grid-column: 1/3;
+        grid-row: 7/8;
+    }
+    app-lscs {
+        grid-column: 3/4;
+        grid-row: 3/7;
+    }
+}

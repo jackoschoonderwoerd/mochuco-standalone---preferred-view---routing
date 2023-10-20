@@ -1,0 +1,15 @@
+.app-select-audio {
+    // padding: 1rem;
+    // background-color: lightgray;
+    mat-spinner {
+        margin: auto;
+    }
+    .not-is-loading {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        audio {
+            height: 3rem;
+        }
+    }
+}

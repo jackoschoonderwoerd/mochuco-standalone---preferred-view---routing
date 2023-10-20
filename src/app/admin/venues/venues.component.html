@@ -1,0 +1,41 @@
+<div class="app-venues child-component">
+
+
+    <div class="venues-container">
+        <mat-spinner *ngIf="isLoading$|async"></mat-spinner>
+        <div *ngIf="!(isLoading$|async)"
+            class="venues">
+            <div class="no-venues"
+                *ngIf="(venues$|async)?.length == 0">no venues yet</div>
+            <div class="venue"
+                *ngFor="let venue of venues$|async">
+                <div class="name">{{venue.name}}</div>
+                <!-- <div class="id">{{venue.id}}</div>
+                <div class="id">{{venue.ownerId}}</div> -->
+                <div class="buttons">
+                    <button class="edit"
+                        mat-mini-fab
+                        color="primary"
+                        (click)="onVenueDetails(venue)">
+                        <mat-icon aria-hidden="false"
+                            aria-label="Example home icon"
+                            fontIcon="search"></mat-icon>
+                    </button>
+                    <button class="delete"
+                        mat-mini-fab
+                        color="warn"
+                        (click)="onDelete(venue.id)">
+                        <mat-icon aria-hidden="false"
+                            aria-label="Example home icon"
+                            fontIcon="delete"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <button class="add-venue"
+                mat-raised-button
+                color="primary"
+                (click)="onAddVenue()">add venue</button>
+        </div>
+    </div>
+
+</div>

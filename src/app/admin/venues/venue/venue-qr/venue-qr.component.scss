@@ -1,0 +1,13 @@
+.venue-qr-component {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    gap: 1rem;
+    margin: auto;
+    // background-color: lightgray;
+    // padding: 1rem;
+    .venue-name {
+        text-transform: uppercase;
+    }
+}

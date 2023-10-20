@@ -1,0 +1,24 @@
+<div class="app-logo nested-component">
+
+    <div class="header-js">venue logo</div>
+    <input #fileInput
+        style="display: none;"
+        type="file"
+        (change)="onLogoInputChange($event)">
+    <div class="image-container"
+        *ngIf="(venue$|async)?.logoUrl">
+        <img [src]="(venue$|async)?.logoUrl"
+            alt="">
+    </div>
+    <div class="no-logo"
+        *ngIf="!(venue$|async)?.logoUrl">no logo selected</div>
+    <button mat-raised-button
+        color="primary"
+        (click)="fileInput.click()">{{(venue$|async)?.logoUrl ? 'update logo' :'select logo'}}</button>
+    <button class="delete-logo"
+        (click)="onDeleteLogo()"
+        mat-raised-button
+        *ngIf="(venue$|async)?.logoUrl">
+        delete logo
+    </button>
+</div>

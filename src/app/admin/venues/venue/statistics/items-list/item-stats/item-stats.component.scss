@@ -1,0 +1,12 @@
+.app-item-stats {
+    .visits-list {
+        .visits-list-item {
+            padding: 0.1rem;
+            border: 1px solid gray;
+            margin-bottom: 0.2rem;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+}

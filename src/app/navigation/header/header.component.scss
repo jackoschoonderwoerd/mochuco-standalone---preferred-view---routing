@@ -1,0 +1,105 @@
+mat-toolbar {
+    // border: 2px solid green;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    .toolbar-left {
+        // border: 2px solid red;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        .menu {
+            // border: 2px solid pink;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            mat-icon {
+                // border: 2px solid lightblue;
+            }
+        }
+        .home {
+            // border: 2px solid orange;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: white;
+            border: 3px solid white;
+            border-radius: 50%;
+            img {
+                // border: 2px solid yellow;
+                width: 2rem;
+            }
+        }
+    }
+    .toolbar-right {
+        // border: 1px solid white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .streetview {
+            cursor: pointer;
+            // border: 1px solid pink;
+            mat-icon {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .venue-logo {
+            // max-height: 24px;
+            max-width: 3rem;
+            // border: 1px solid white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            cursor: pointer;
+            img {
+                background-color: white;
+                width: 100%;
+                border: 3px solid white;
+            }
+        }
+        .venues {
+            // border: 1px solid pink;
+            span {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .account {
+            // border: 1px solid pink;
+            span {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .admin {
+            // border: 1px solid pink;
+            i {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .logout {
+            cursor: pointer;
+            // border: 1px solid pink;
+            span {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    }
+}
+
+.linkActive {
+    color: red;
+}
+a {
+    color: white;
+}

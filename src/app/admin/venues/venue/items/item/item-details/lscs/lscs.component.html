@@ -1,0 +1,33 @@
+<div class="app-lscs nested-component">
+    <div class="lscs">
+        <div class="active-lscs header-js"
+            *ngIf="(lscs$|async)?.length > 0">active languages for this item</div>
+        <div class="no-active-lscs header-js"
+            *ngIf="(lscs$|async)?.length == 0">no active languages for this item</div>
+        <div class="lsc"
+            *ngFor="let lsc of lscs$|async">
+            <div class="language">{{lsc.language}}</div>
+            <div class="buttons">
+                <button class="details"
+                    mat-mini-fab
+                    color="primary"
+                    (click)="onDetails(lsc)">
+                    <mat-icon>search</mat-icon>
+                </button>
+                <button class="delete"
+                    mat-mini-fab
+                    color="warn"
+                    (click)="onDelete(lsc.language)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+            <!-- <div class="name">{{lsc.name}}</div>
+            <div class="description">{{lsc.description}}</div> -->
+        </div>
+    </div>
+
+    <button mat-raised-button
+        color="primary"
+        (click)="onAddLanguage()">add language</button>
+
+</div>

@@ -1,0 +1,21 @@
+<div class="lsc-name-component nested-component">
+
+    <div class="header-js">lsc name</div>
+
+    <div class="current-name">current value:&nbsp;<span>{{(lsc$|async)?.name}}</span></div>
+    <form [formGroup]="form">
+        <mat-form-field>
+            <label for="">enter name</label>
+            <input type="text"
+                (keyup)="onKeyUp($event)"
+                matInput
+                formControlName="name">
+        </mat-form-field>
+        <!-- <button mat-raised-button
+            (click)="onUpdateNameOrAddLanguage()">{{editmode ?'update name':'add name'}}</button> -->
+        <button mat-raised-button
+            [ngStyle]="nameAltered ? {'border':'3px solid red'}:{}"
+            color="primary"
+            (click)="onUpdateName()">update lsc name</button>
+    </form>
+</div>

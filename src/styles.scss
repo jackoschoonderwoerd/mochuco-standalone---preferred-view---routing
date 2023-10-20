@@ -1,0 +1,51 @@
+/* You can add global styles to this file, and also import other style files */
+// yellow #FFAF1B
+// rust #98371B
+// green #6F8A51
+
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+* {
+    box-sizing: border-box;
+}
+
+a {
+    // color: white;
+    text-decoration: none;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.header-js {
+    background-color: lightgray;
+    padding: 0.3rem 0;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    grid-column-start: 1;
+    grid-column-end: -1;
+}
+.child-component {
+    padding: 3rem;
+}
+.nested-component {
+    padding: 1rem;
+    background-color: lightgray;
+}
+mat-icon {
+    color: white;
+}
+button {
+    span {
+        a {
+            color: white;
+        }
+    }
+}

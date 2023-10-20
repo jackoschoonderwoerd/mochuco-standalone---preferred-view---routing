@@ -1,0 +1,31 @@
+<div class="app-lsc-laguage nested-component">
+    <!-- <div *ngIf="editmode"
+        class="selected-language">{{selectedLSC.language}}</div> -->
+
+
+    <mat-form-field *ngIf="!editmode"
+        class="select-language">
+        <label for="">select language</label>
+        <mat-select (valueChange)="onLanguageSelected($event)">
+            <mat-option *ngFor="let language of availableLanguages"
+                [value]="language">
+                {{language}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+</div>
+
+
+<!-- <mat-form-field class="select-language">
+    <label for=""
+        *ngIf="!editmode">select language</label>
+    <mat-select (valueChange)="onLanguageSelected($event)"
+        [disabled]="editmode"
+        [(value)]="selectedLanguage">
+        <mat-option *ngFor="let availableLanguage of availableLanguages"
+            [value]="availableLanguage">
+            {{availableLanguage}}
+        </mat-option>
+    </mat-select>
+</mat-form-field> -->

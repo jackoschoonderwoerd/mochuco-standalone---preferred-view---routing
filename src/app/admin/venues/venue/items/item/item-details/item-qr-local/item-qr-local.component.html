@@ -1,0 +1,11 @@
+<div *ngIf="!insufficientDataForQr"
+    class="item-qr-component">
+
+    <div class="location">LOCAL</div>
+    <qrcode (qrCodeURL)="onChangeURL($event)"
+        [qrdata]="qrDataString"
+        [width]="getWidth()"
+        [errorCorrectionLevel]="'M'"></qrcode>
+    <div class="item-name">{{selectedItem.name}}</div>
+    {{qrDataString}}
+</div>

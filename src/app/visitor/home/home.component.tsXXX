@@ -1,0 +1,44 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Observable } from 'rxjs';
+import { Venue } from 'src/app/admin/shared/models/venue.model';
+import { Store } from '@ngrx/store';
+import * as fromRoot from 'src/app/app.reducer'
+import { ItemsService } from 'src/app/admin/venues/venue/items/items.service';
+import { Item } from 'src/app/admin/shared/models/item.model';
+import { DocumentData } from '@angular/fire/firestore';
+import { LscsService } from 'src/app/admin/venues/venue/items/item/item-details/lscs/lscs.service';
+import * as VISITOR from 'src/app/visitor/store/visitor.actions'
+import { MatButtonModule } from '@angular/material/button';
+
+@Component({
+    selector: 'app-home',
+    standalone: true,
+    imports: [CommonModule, MatButtonModule, RouterModule],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss']
+})
+export class HomeComponent implements OnInit {
+
+    venue$: Observable<Venue>;
+    mainPageItem$: Observable<DocumentData>
+    mainPageLsc$: Observable<DocumentData>;
+    homeActive: boolean = true;
+    storedata: any
+
+    constructor(
+        private route: ActivatedRoute,
+        private store: Store,
+        private itemsService: ItemsService,
+        private LscsService: LscsService
+    ) { }
+
+    ngOnInit(): void {
+
+
+    }
+    onLogin() {
+
+    }
+}

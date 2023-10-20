@@ -1,0 +1,15 @@
+main {
+    display: flex;
+    // grid-template-columns: auto auto auto;
+    gap: 2rem;
+    padding: 1rem;
+    background-color: wheat;
+
+    a {
+        color: black;
+        text-transform: uppercase;
+    }
+}
+.router-link-active {
+    color: red;
+}

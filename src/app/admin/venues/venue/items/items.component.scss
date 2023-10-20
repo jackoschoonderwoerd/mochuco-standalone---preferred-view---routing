@@ -1,0 +1,30 @@
+.app-items-component {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    // padding: 1rem;
+    // background-color: lightgray;
+    .items {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+        .item {
+            // border: 1px solid black;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            background-color: wheat;
+            // padding: 0.2rem 1rem;
+            align-items: center;
+            .buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+    }
+    .add-item {
+    }
+}
+.is-main-page {
+    border: 5px solid green;
+}

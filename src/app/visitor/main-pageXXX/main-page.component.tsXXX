@@ -1,0 +1,144 @@
+// import { Component, OnInit } from '@angular/core';
+// import { CommonModule } from '@angular/common';
+// import { Observable, map } from 'rxjs';
+// import { DocumentData } from '@angular/fire/firestore';
+// import { Store } from '@ngrx/store';
+// import * as fromRoot from 'src/app/app.reducer'
+// import { Item } from 'src/app/admin/shared/models/item.model';
+// import { Venue } from 'src/app/admin/shared/models/venue.model';
+// import { LscsService } from 'src/app/admin/venues/venue/items/item/item-details/lscs/lscs.service';
+// import { ItemsService } from 'src/app/admin/venues/venue/items/items.service';
+// import * as VISITOR from 'src/app/visitor/store/visitor.actions';
+// import { Router } from '@angular/router';
+// import { Coordinates } from '../../admin/shared/models/item.model';
+
+// @Component({
+//     selector: 'app-main-page',
+//     standalone: true,
+//     imports: [CommonModule],
+//     templateUrl: './main-page.component.html',
+//     styleUrls: ['./main-page.component.scss']
+// })
+// export class MainPageComponent implements OnInit {
+
+//     mainPage$: Observable<DocumentData>
+//     mainPage: Item;
+//     visitorSelectedVenue: Venue;
+//     mainPageLsc$: Observable<DocumentData>;
+//     items$: Observable<DocumentData>;
+//     items: Item[]
+
+//     constructor(
+//         private store: Store<fromRoot.State>,
+//         private LscsService: LscsService,
+//         private itemsService: ItemsService,
+//         private router: Router
+//     ) { }
+
+//     ngOnInit(): void {
+//         this.mainPage$ = this.store.select(fromRoot.getVisitorSelectedMainPage);
+//         this.mainPageLsc$ = this.store.select(fromRoot.getVisitorSelectedLsc);
+//         this.store.select(fromRoot.getVisitorSelectedVenue).subscribe((visitorSelectedVenue: Venue) => {
+//             if (visitorSelectedVenue) {
+//                 this.visitorSelectedVenue = visitorSelectedVenue
+//                 this.itemsService.getItems(this.visitorSelectedVenue.id).subscribe((items: Item[]) => {
+//                     // this.getLsc(visitorSelectedVenue.id);
+//                     this.getItems(visitorSelectedVenue.id)
+//                     items.forEach((item: Item) => {
+//                         if (item.coordinates) {
+//                             this.getDistanceFromUser(item.coordinates.latitude, item.coordinates.latitude).subscribe((distance: any) => {
+//                                 console.log(item, distance)
+//                             })
+//                             console.log(this.items)
+//                         }
+//                     })
+//                 })
+//             }
+//         })
+//     }
+
+//     // getLsc(visitorSelectedVenueId: string) {
+//     //     this.store.select(fromRoot.getVisitorSelectedMainPage).subscribe((visitorSelectedMainPage: Item) => {
+//     //         if (visitorSelectedMainPage) {
+//     //             console.log(visitorSelectedMainPage);
+//     //             this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((visitorSelectedLanguage: string) => {
+//     //                 // if (!visitorSelectedLanguage) {
+//     //                 //     visitorSelectedLanguage = 'dutch'
+//     //                 // }
+//     //                 console.log(visitorSelectedLanguage)
+//     //                 this.mainPageLsc$ = this.LscsService.getLsc(
+//     //                     visitorSelectedVenueId,
+//     //                     visitorSelectedMainPage.id,
+//     //                     visitorSelectedLanguage
+//     //                 )
+//     //             })
+//     //         }
+//     //     })
+//     // }
+
+//     getItems(visitorSelectedVenueId: string) {
+//         // this.items$ = this.itemsService.getItems(this.visitorSelectedVenue.id)
+//         this.store.dispatch(new VISITOR.SetVisitorMainPageActive(false))
+//         this.itemsService.getItems(visitorSelectedVenueId).subscribe((items: Item[]) => {
+//             this.items = items
+//             this.items.forEach((item: Item) => {
+//                 // console.log(item);
+//                 if (item.coordinates) {
+//                     console.log(typeof item.coordinates.latitude);
+//                     console.log(typeof item.coordinates.longitude);
+//                     this.getDistanceFromUser(item.coordinates.latitude, item.coordinates.longitude)
+//                         .subscribe((metersFromVisitor: number) => {
+//                             item.metersFromVisitor = metersFromVisitor
+//                             console.log(item.name);
+//                             console.log(metersFromVisitor);
+//                             this.items = this.items.sort((a: Item, b: Item) => {
+//                                 return a.metersFromVisitor - b.metersFromVisitor
+//                             })
+//                         })
+//                 }
+//             })
+//         })
+//     }
+
+//     onItem(item: Item) {
+//         this.store.dispatch(new VISITOR.SetVisitorSelectedItem(item))
+//         this.router.navigateByUrl('/scan-result')
+//     }
+
+//     private getDistanceFromUser(itemLatitude: number, itemLongitude: number) {
+//         console.log('getDistanceFromUser(){}')
+//         if (!navigator) {
+//             this.router.navigate(['/user/user-error-page', { message: 'no navigator' }])
+//         } else {
+//             const distanceToObject = new Observable(observer => {
+//                 navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
+//                     if (!position) {
+//                         this.router.navigate(['/user/user-error-page', { message: 'can\'t determinate users geolocation' }])
+//                     } else {
+//                         const userLat = position.coords.latitude;
+//                         const userLon = position.coords.longitude;
+//                         const distanceFromObject = this.distanceFromObject(userLat, userLon, itemLatitude, itemLongitude);
+//                         observer.next(distanceFromObject);
+//                         observer.complete();
+//                     }
+//                 })
+//             })
+
+//             return distanceToObject
+//         }
+//     }
+
+
+//     distanceFromObject(latObject: number, lonObject: number, latVisitor: number, lonVisitor: number) {  // generally used geo measurement function
+
+//         var R = 6378.137; // Radius of earth in KM
+//         var dLat = latVisitor * Math.PI / 180 - latObject * Math.PI / 180;
+//         var dLon = lonVisitor * Math.PI / 180 - lonObject * Math.PI / 180;
+//         var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+//             Math.cos(latObject * Math.PI / 180) * Math.cos(latVisitor * Math.PI / 180) *
+//             Math.sin(dLon / 2) * Math.sin(dLon / 2);
+//         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//         var d = R * c;
+//         return Math.round(d * 1000); // meters
+//     }
+// }

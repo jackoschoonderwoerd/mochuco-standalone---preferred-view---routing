@@ -1,0 +1,20 @@
+<div class="app-select-audio nested-component">
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+    <div class="header-js">lsc audio</div>
+    <div class="not-is-loading"
+        *ngIf="!isLoading">
+        <input #fileInput
+            style="display: none;"
+            type="file"
+            (change)="onAudioInputChange($event)">
+        <audio *ngIf="(lsc$|async)?.audioUrl"
+            [src]="(lsc$|async)?.audioUrl"
+            controls></audio>
+        <button mat-raised-button
+            color="primary"
+            (click)="fileInput.click()">{{(lsc$|async)?.audioUrl ? 'edit audio':'select audio' }}</button>
+        <button mat-raised-button
+            *ngIf="(lsc$|async)?.audioUrl"
+            (click)="onDeleteAudio()">delete audio</button>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div *ngIf="!insufficientDataForQr"
+    class="item-qr-component nested-component">
+
+
+    <qrcode (qrCodeURL)="onChangeURL($event)"
+        [qrdata]="qrDataString"
+        [width]="getWidth()"
+        [errorCorrectionLevel]="'M'"></qrcode>
+    <div class="item-name">{{selectedItem.name}}</div>
+    <button class="download"
+        mat-raised-button
+        color="primary">
+        <a [href]="qrCodeDownloadLink"
+            download="qrcode">Download</a>
+    </button>
+</div>

@@ -1,0 +1,16 @@
+.app-logo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    // padding: 1rem;
+    // background-color: lightgray;
+
+    .image-container {
+        width: 100%;
+        img {
+            border: 1px solid darkgray;
+            margin: auto;
+            width: 100%;
+        }
+    }
+}

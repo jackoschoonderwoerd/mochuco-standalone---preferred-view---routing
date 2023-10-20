@@ -1,0 +1,21 @@
+main {
+    .user {
+        max-width: 30rem;
+        margin: 3rem auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: lightgray;
+        .display-name {
+            display: grid;
+            grid-template-columns: 6rem auto 3rem;
+            align-items: center;
+        }
+
+        .email {
+            display: grid;
+            grid-template-columns: 6rem auto;
+        }
+    }
+}

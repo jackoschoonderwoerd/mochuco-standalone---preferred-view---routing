@@ -1,0 +1,65 @@
+<div class="app-login">
+    <div class="buttons">
+        <button class="existing-user"
+            (click)="onExistingUser()"
+            mat-raised-button
+            color="primary">existing user</button>
+        <button class="existing-user"
+            (click)="onNewUser()"
+            mat-raised-button
+            color="primary">new user</button>
+    </div>
+    <form *ngIf="existingUser"
+        [formGroup]="loginForm"
+        class="login-form">
+        <div class="user-type">existing user</div>
+        <mat-form-field>
+            <label for="email">email</label>
+            <input type="text"
+                matInput
+                formControlName="email">
+        </mat-form-field>
+        <mat-form-field>
+            <label for="password">password</label>
+            <input type="text"
+                matInput
+                formControlName="password">
+        </mat-form-field>
+        <button class="existing-user"
+            color="primary"
+            mat-raised-button
+            (click)="onLogin()">log in</button>
+    </form>
+
+    <form *ngIf="newUser"
+        [formGroup]="signupForm"
+        class="signup-form">
+        <div class="user-type">new user</div>
+        <mat-form-field>
+            <label for="email">display name</label>
+            <input type="text"
+                matInput
+                formControlName="displayName">
+        </mat-form-field>
+        <mat-form-field>
+            <label for="email">email</label>
+            <input type="text"
+                matInput
+                formControlName="email">
+        </mat-form-field>
+        <mat-form-field>
+            <label for="password">password</label>
+            <input type="text"
+                matInput
+                formControlName="password">
+        </mat-form-field>
+        <button class="existing-user"
+            color="primary"
+            mat-raised-button
+            (click)="onSignup()">sign up</button>
+    </form>
+    <button *ngIf="existingUser"
+        class="request-new-password"
+        mat-raised-button
+        (click)="onRequestNewPassword()">request new password</button>
+</div>

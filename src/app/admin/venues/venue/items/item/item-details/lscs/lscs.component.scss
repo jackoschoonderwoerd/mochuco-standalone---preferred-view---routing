@@ -1,0 +1,26 @@
+.app-lscs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    // background-color: lightgray;
+    // padding: 2rem;
+    .lscs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        .lsc {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.3rem;
+            align-items: center;
+            border: 1px solid black;
+            background-color: wheat;
+            padding: 0.3rem 1rem;
+            .buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+    }
+}

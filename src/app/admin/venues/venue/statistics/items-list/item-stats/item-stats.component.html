@@ -1,0 +1,22 @@
+<div class="app-item-stats">
+    <mat-form-field>
+        <mat-label>Choose a date</mat-label>
+        <input matInput
+            [matDatepicker]="picker">
+        <mat-datepicker-toggle matIconSuffix
+            [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <ul class="visits-list"
+        *ngIf="visitsDataArray">
+        <li class="visits-list-item"
+            *ngFor="let visit of visitsDataArray">
+            <div class="date">{{visit.timestamp|date:'fullDate'}}</div>
+            <div class="time">{{visit.timestamp|date:'fullTime'}}</div>
+            <div class="language">{{visit.language}}</div>
+        </li>
+    </ul>
+    <div class="no-visits"
+        *ngIf="!(visitsDataArray)">no visits</div>
+</div>

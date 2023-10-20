@@ -1,0 +1,36 @@
+.items-list-component {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+    button {
+        grid-column: 1/-1;
+    }
+    .header-js {
+        display: flex;
+        gap: 1rem;
+        grid-column: 1/-1;
+
+        .title {
+        }
+        .name {
+            text-transform: capitalize;
+        }
+    }
+    .items-list {
+        grid-column: 1/3;
+        .items-list-item {
+            display: flex;
+            gap: 1rem;
+            border: 1px solid gray;
+            margin-bottom: 0.2rem;
+            padding: 0.2rem;
+            align-items: center;
+        }
+    }
+    app-item-stats {
+        grid-column: 3/-1;
+    }
+}
+.selected {
+    border: 3px solid red;
+}

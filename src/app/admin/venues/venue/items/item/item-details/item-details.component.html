@@ -1,0 +1,19 @@
+<main class="item-details-component child-component">
+
+
+    <button class="back-to-venue-details"
+        mat-raised-button
+        color="primary"
+        (click)="onBackToVenueDetails()">back to venue details
+    </button>
+
+    <div class="header-js">item details</div>
+    <app-item-name></app-item-name>
+    <app-item-is-main-page></app-item-is-main-page>
+    <app-item-coordinates></app-item-coordinates>
+    <app-item-image></app-item-image>
+    <app-item-qr></app-item-qr>
+    <app-item-qr-local *ngIf="isAdmin"></app-item-qr-local>
+    <app-lscs></app-lscs>
+
+</main>

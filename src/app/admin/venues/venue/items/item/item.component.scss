@@ -1,0 +1,28 @@
+.item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 0.2rem 1rem;
+    border: 1px solid gray;
+    .name {
+        span {
+            text-transform: capitalize;
+        }
+    }
+    .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+// form {
+//     top: 10rem;
+//     display: grid;
+//     grid-template-columns: 1fr;
+//     gap: 1rem;
+//     max-width: 25rem;
+//     margin: 3rem auto 0 auto;
+//     border: 1px solid gray;
+//     padding: 1rem;
+// }

@@ -1,0 +1,14 @@
+.app-language-description {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    // padding: 1rem;
+    // background-color: lightgray;
+    form {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+.descriptionAltered {
+    border: 3px solid red;
+}

@@ -1,0 +1,53 @@
+.lsc-details-component {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(8, auto);
+    padding: 2rem;
+    gap: 2rem;
+
+    .back-to-item-details {
+        grid-column: 1/-1;
+        grid-row: 1/2;
+    }
+    .header-js {
+        grid-column: 1/-1;
+        grid-row: 2/3;
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+
+        .language {
+            color: white;
+            background-color: black;
+            padding: 0 0.3rem;
+        }
+        .content {
+            text-transform: capitalize;
+        }
+    }
+
+    app-lsc-language {
+        grid-column: 1/4;
+        grid-row: 3/4;
+    }
+    app-lsc-name {
+        grid-column: 1/4;
+        grid-row: 4/5;
+    }
+    app-lsc-description {
+        grid-column: 1/4;
+        grid-row: 5/6;
+    }
+    app-select-audio {
+        grid-column: 1/4;
+        grid-row: 6/7;
+    }
+
+    app-lsc-preview {
+        grid-column: 4/-1;
+        grid-row: 3/6;
+    }
+}
+.name-and-description-changed {
+    border: 5px solid red;
+}

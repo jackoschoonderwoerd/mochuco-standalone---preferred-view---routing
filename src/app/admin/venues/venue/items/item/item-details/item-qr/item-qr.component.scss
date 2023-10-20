@@ -1,0 +1,13 @@
+.item-qr-component {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    // padding: 1rem;
+    // background-color: lightgray;
+    qrcode {
+        margin: auto;
+    }
+    .item-name {
+        text-align: center;
+    }
+}

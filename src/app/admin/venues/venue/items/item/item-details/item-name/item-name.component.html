@@ -1,0 +1,19 @@
+<div class="app-item-name nested-component">
+    editmode: {{editmode}}
+    <div class="header-js"><span>item name:</span>&nbsp;<span>{{(item$|async)?.name}}</span></div>
+    <form [formGroup]="form">
+        <mat-form-field>
+            <mat-label>name</mat-label>
+            <input type="text"
+                matInput
+                formControlName="name"
+                (keydown)="onInputChanged()">
+        </mat-form-field>
+        <button class="item"
+            [class.input-changed]="inputChanged"
+            [disabled]="form.invalid"
+            mat-raised-button
+            color="primary"
+            (click)="onAddOrUpdateItemName()">{{editmode ?'update item name':'add item'}}</button>
+    </form>
+</div>

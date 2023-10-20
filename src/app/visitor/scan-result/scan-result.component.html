@@ -1,0 +1,62 @@
+<div class="app-scan-result">
+    <!-- <mat-spinner *ngIf="!(lsc$|async)"></mat-spinner> -->
+    <div class="scan-results-component">
+        <div class="name"
+            [innerHTML]="(lsc$|async)?.name">
+        </div>
+
+        <div class="scrollable">
+            <!-- <mat-spinner *ngIf="!(item$|async)"></mat-spinner> -->
+            <img *ngIf="(item$|async)?.imageUrl"
+                [src]="(item$|async)?.imageUrl"
+                alt="">
+
+
+            <div class="description"
+                *ngIf="(lsc$|async)?.description"
+                [innerHTML]="(lsc$|async)?.description">
+            </div>
+            <div class="no-description"
+                *ngIf="!(lsc$|async)?.description">
+                description not available in preferred language
+            </div>
+
+            <audio preload="none"
+                *ngIf="(lsc$|async)?.audioUrl"
+                [src]="(lsc$|async)?.audioUrl"
+                controls="controls"></audio>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="app-scan-result">
+    <mat-spinner *ngIf="!(lsc$|async)"></mat-spinner>
+    <div *ngIf="(lsc$|async)"
+        class="scan-results-component">
+        <div class="name"
+            [innerHTML]="(lsc$|async)?.name">
+        </div>
+
+        <div class="scrollable">
+            <mat-spinner *ngIf="!(item$|async)"></mat-spinner>
+            <img [src]="(item$|async)?.imageUrl"
+                alt="">
+
+
+            <div class="description"
+                *ngIf="(lsc$|async)?.description"
+                [innerHTML]="(lsc$|async)?.description">
+            </div>
+            <div class="no-description"
+                *ngIf="!(lsc$|async)?.description">
+                description not available in preferred language
+            </div>
+
+            <audio preload="none"
+                *ngIf="(lsc$|async)?.audioUrl"
+                [src]="(lsc$|async)?.audioUrl"
+                controls="controls"></audio>
+        </div>
+    </div>
+</div> -->

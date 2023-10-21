@@ -1,5 +1,6 @@
 mat-toolbar {
     // border: 2px solid green;
+    background-color: var(--moc-rust);
     display: flex;
     gap: 1rem;
     justify-content: space-between;
@@ -15,6 +16,7 @@ mat-toolbar {
             justify-content: center;
             mat-icon {
                 // border: 2px solid lightblue;
+                color: var(--moc-yellow);
             }
         }
         .home {
@@ -41,6 +43,7 @@ mat-toolbar {
             cursor: pointer;
             // border: 1px solid pink;
             mat-icon {
+                color: var(--moc-yellow);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -64,6 +67,7 @@ mat-toolbar {
         .venues {
             // border: 1px solid pink;
             span {
+                color: var(--moc-yellow);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -72,6 +76,7 @@ mat-toolbar {
         .account {
             // border: 1px solid pink;
             span {
+                color: var(--moc-yellow);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -80,15 +85,18 @@ mat-toolbar {
         .admin {
             // border: 1px solid pink;
             i {
+                color: var(--moc-yellow);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
             }
         }
-        .logout {
+        .logout,
+        .login {
             cursor: pointer;
             // border: 1px solid pink;
             span {
+                color: var(--moc-yellow);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -99,6 +107,9 @@ mat-toolbar {
 
 .linkActive {
     color: red;
+    border: 3px solid var(--moc-green);
+    padding: 0.3rem;
+    border-radius: 50%;
 }
 a {
     color: white;

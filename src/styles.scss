@@ -1,7 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
-// yellow #FFAF1B
-// rust #98371B
-// green #6F8A51
+
+:root {
+    --moc-yellow: #ffaf1b;
+    --moc-rust: #98371b;
+    --moc-green: #6f8a51;
+    --moc-black: black;
+    --moc-white: white;
+}
 
 html,
 body {
@@ -16,7 +21,7 @@ body {
 }
 
 a {
-    // color: white;
+    color: var(--moc-white);
     text-decoration: none;
 }
 ul {

@@ -1,3 +1,5 @@
+@import url("https://fonts.cdnfonts.com/css/baumans");
+
 .app-scan-result {
     mat-spinner {
         margin: 3rem auto;
@@ -6,18 +8,20 @@
         display: flex;
         flex-direction: column;
         width: 100vw;
-        max-width: 375px;
+        max-width: 500px;
         margin: auto;
-        background-color: white;
+        background-color: var(--moc-green);
         .name {
+            font-family: "Baumans", display;
             position: fixed;
             width: 100%;
-            max-width: 375px;
+            max-width: 500px;
             height: 2.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: lightblue;
+            background-color: var(--moc-yellow);
+            color: var(--moc-rust);
             text-transform: uppercase;
             font-weight: 500;
             text-align: center;
@@ -31,6 +35,8 @@
             }
             padding: 1rem;
             .description {
+                color: var(--moc-white);
+                font-family: "Montserrat", Helvetica, Arial, Lucida, sans-serif;
                 // border: 1px solid black;
                 // p {
                 //     color: red;

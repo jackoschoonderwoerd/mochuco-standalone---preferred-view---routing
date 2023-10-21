@@ -5,7 +5,7 @@ mat-sidenav {
 mat-sidenav-content {
     display: grid;
     grid-template-rows: 4rem auto 3rem;
-    background-color: gray;
+    background-color: var(--moc-green);
 
     app-header {
         position: fixed;

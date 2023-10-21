@@ -3,11 +3,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: black;
+    background-color: var(--moc-yellow);
     color: white;
     height: 3rem;
     .open-select-language {
         cursor: pointer;
+        i {
+            color: var(--moc-rust);
+        }
+    }
+    .scanner {
+        cursor: pointer;
+        mat-icon {
+            color: var(--moc-rust);
+        }
     }
 }
 

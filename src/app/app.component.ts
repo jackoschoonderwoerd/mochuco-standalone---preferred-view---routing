@@ -150,7 +150,7 @@ export class AppComponent implements OnInit {
         const venueId = queryParameters.get('venueId')
         const itemId = queryParameters.get('itemId')
 
-        alert(`app.component itemId:  ${itemId}`)
+        // alert(`app.component itemId:  ${itemId}`)
 
         if (venueId && !itemId) {
             // alert(`app.component no itemId venueId: ${venueId}`)
@@ -162,14 +162,14 @@ export class AppComponent implements OnInit {
 
         }
         if (venueId && itemId) {
-            alert(`app.component venueId: ${venueId}, itemId: ${itemId}`)
+            // alert(`app.component venueId: ${venueId}, itemId: ${itemId}`)
             // this.visitorService.storeMainPageItemId(venueId);
             this.visitorService.storeVisitorSelectedVenueId(venueId)
             this.visitorService.storeVisitorSelectedItemId(itemId)
             // this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
         }
         if (!venueId && !itemId) {
-            alert('no venueId, no itemId')
+            // alert('no venueId, no itemId')
             console.log('no venueId, no itemId')
         }
 

@@ -9,9 +9,10 @@
                 alt="">
         </a>
 
-        <div class="visitor-selected-view"
-            *ngIf="(isAdmin$|async)">{{(visitorSelectedView$|async).substring(0, 2)}}</div>
-        <a href="">V3</a>
+        <!-- <div class="visitor-selected-view"
+            *ngIf="(isAdmin$|async)">{{(visitorSelectedView$|async).substring(0, 2)}}
+        </div> -->
+        <!-- <a href="">V3</a> -->
     </div>
 
 
@@ -57,6 +58,7 @@
 
 
         <a class="admin"
+            routerLinkActive="linkActive"
             *ngIf="(isAdmin$|async)"
             routerLink="tests"><i class="material-icons">admin_panel_settings</i></a>
 

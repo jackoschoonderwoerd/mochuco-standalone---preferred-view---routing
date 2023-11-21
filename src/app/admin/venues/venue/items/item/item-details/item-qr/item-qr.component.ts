@@ -9,6 +9,9 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { DocumentData } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-item-qr',
@@ -29,6 +32,7 @@ export class ItemQrComponent implements OnInit {
     selectedItem: Item;
     innerWidth: number;
     insufficientDataForQr: boolean = false
+    item$: Observable<DocumentData>;
 
 
     public myAngularxQrCode: string = "";
@@ -41,28 +45,19 @@ export class ItemQrComponent implements OnInit {
 
     constructor(
         private store: Store<fromRoot.State>,
+        private firestoreService: FirestoreService
 
     ) { }
 
     ngOnInit(): void {
-        this.innerWidth = window.innerWidth;
-        // console.log(this.innerWidth);
-        // console.log(document.body.offsetWidth)
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            this.selectedVenue = { ...selectedVenue }
-            this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-                this.selectedItem = { ...selectedItem }
-                if (this.selectedVenue && this.selectedVenue.id && this.selectedItem && this.selectedItem.id) {
-                    this.qrDataString = `https://mochuco-standalone-ec3f0.web.app/?venueId=${this.selectedVenue.id}&itemId=${this.selectedItem.id}`
-                    // this.qrDataString = `http://localhost:4200?venueId=${this.selectedVenue.id}&itemId=${this.selectedItem.id}`
-                    // console.log(this.qrDataString)
-                } else {
-                    console.log('insufficient data');
-                    this.insufficientDataForQr = true;
-                }
-
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                this.qrDataString = `https://mochuco-standalone-ec3f0.web.app/?venueId=${venueId}&itemId=${itemId}`
+                const pathToItem = `venues/${venueId}/items/${itemId}`
+                this.item$ = this.firestoreService.getDocument(pathToItem)
             })
         })
+        this.innerWidth = window.innerWidth;
     }
     onChangeURL(url: SafeUrl) {
         this.qrCodeDownloadLink = url;

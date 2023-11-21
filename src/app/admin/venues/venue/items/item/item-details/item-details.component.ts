@@ -13,8 +13,8 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ItemsService } from '../../items.service';
 import { UiService } from 'src/app/admin/shared/ui.service';
-import { getSelectedItem } from '../../../../../store/admin.reducer';
-import { FirestoreError } from '@angular/fire/firestore';
+// import { getSelectedItem } from '../../../../../store/admin.reducer';
+// import { FirestoreError } from '@angular/fire/firestore';
 import { LscsComponent } from './lscs/lscs.component';
 import { Observable, from } from 'rxjs';
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
@@ -29,6 +29,7 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { User as FirebaseUser } from "@angular/fire/auth";
 import { ItemCoordinatesComponent } from './item-coordinates/item-coordinates.component';
 import { ItemIsMainPageComponent } from './item-is-main-page/item-is-main-page.component';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 
 @Component({
@@ -57,62 +58,34 @@ import { ItemIsMainPageComponent } from './item-is-main-page/item-is-main-page.c
 export class ItemDetailsComponent implements OnInit {
 
 
-    selectedVenue: Venue;
-    selectedItem: Item;
-    selectedLSC: LSC;
+
+
     editmode: boolean = false
-    lscs$: Observable<any[]>;
-    isAdmin: boolean = false
+    item$: Observable<any>
 
 
     constructor(
         private store: Store<fromRoot.State>,
-        private fb: FormBuilder,
-        private dialog: MatDialog,
-        private itemsService: ItemsService,
-        private uiService: UiService,
         private router: Router,
-        private afAuth: Auth,
+        private firestoreService: FirestoreService
 
     ) { }
 
     ngOnInit(): void {
-
-        this.getSelectedItemFromStore();
-        this.getSelectedVenueFromStore();
-        onAuthStateChanged(this.afAuth, (user: FirebaseUser) => {
-            if (user) {
-                console.log(user.uid)
-                if (user.uid === 'DhwbsQYD4OVm2j7d5ZzZGiGoHXJ2') {
-                    this.isAdmin = true;
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                if (itemId) {
+                    this.editmode = true;
+                    const pathToItem = `venues/${venueId}/items/${itemId}`
+                    this.item$ = this.firestoreService.getDocument(pathToItem);
                 }
-            } else {
-
-            }
+            })
         })
 
-    }
-
-
-    getSelectedItemFromStore() {
-        this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-            if (selectedItem) {
-                this.editmode = true;
-                this.selectedItem = { ...selectedItem };
-            }
-        })
-    }
-
-    getSelectedVenueFromStore() {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.selectedVenue = selectedVenue
-            }
-        })
     }
 
     onBackToVenueDetails() {
-        this.store.dispatch(new ADMIN.SetSelectedItem(null));
+        this.store.dispatch(new ADMIN.SetAdminItemId(null));
         this.router.navigateByUrl('/admin/venue')
     }
 }

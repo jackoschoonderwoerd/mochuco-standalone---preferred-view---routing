@@ -1,0 +1,19 @@
+<div class="app-warning">
+    <div class="message">
+        {{data.message}}
+    </div>
+    <div class="listResult"
+        *ngIf="data.listResult">
+        <!-- <pre>
+            {{data.listResult|json}}
+        </pre> -->
+
+        <pre class="items">{{data.listResult.items|json}}</pre>
+        <pre class="prefixes">{{data.listResult.prefixes[0]._location|json}}</pre>
+
+
+    </div>
+    <button mat-raised-button
+        color="primary"
+        (click)="onClose()">close</button>
+</div>

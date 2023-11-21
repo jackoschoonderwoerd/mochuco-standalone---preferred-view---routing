@@ -1,3 +1,12 @@
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    // background-color: rgba(0, 0, 0, 0.5); /* Overlay color with transparency */
+    background-color: transparent; /* Overlay color with transparency */
+    z-index: 1; /* Ensures the overlay is on top of other content */
+}
+
 .language-preview-component {
     display: grid;
     grid-template-columns: 1fr;
@@ -43,10 +52,11 @@
                 text-align: center;
             }
             .overflow {
+                // border: 5px solid red;
                 position: relative;
                 width: 100%;
                 height: calc(100%);
-                overflow: auto;
+                overflow-x: hidden;
                 img {
                     background-color: white;
                     width: 100%;
@@ -55,7 +65,10 @@
                 }
                 .description {
                     // background-color: lightgray;
-                    padding: 0.5rem 1rem;
+                    padding: 1rem;
+                    ngx-editor {
+                        background-color: wheat;
+                    }
                 }
             }
             .audio {

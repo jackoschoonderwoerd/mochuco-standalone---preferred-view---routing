@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 import { Item } from 'src/app/admin/shared/models/item.model';
 import { MatIconModule } from '@angular/material/icon';
 import { ItemComponent } from './item/item.component';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-items',
@@ -27,26 +28,22 @@ export class ItemsComponent implements OnInit {
     constructor(
         private router: Router,
         private store: Store<fromRoot.State>,
-        private itemsService: ItemsService) { }
+        private itemsService: ItemsService,
+        private firestoreService: FirestoreService) { }
 
     ngOnInit(): void {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.items$ = this.itemsService.getItems(selectedVenue.id)
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                const path = `venues/${venueId}/items`;
+                this.items$ = this.firestoreService.getCollection(path);
             }
+
         })
     }
 
-    onEdit(item: Item) {
-        console.log(item);
-    }
-    onDelete(itemId: string) {
-        console.log(itemId);
-    }
-
     onAddItem() {
-        this.store.dispatch(new ADMIN.SetSelectedItem(null))
+        // this.store.dispatch(new ADMIN.SetSelectedItem(null))
+        this.store.dispatch(new ADMIN.SetAdminItemId(null));
         this.router.navigateByUrl('/admin/item-details');
     }
-
 }

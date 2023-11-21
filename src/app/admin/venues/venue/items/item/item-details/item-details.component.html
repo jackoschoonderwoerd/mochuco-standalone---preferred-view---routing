@@ -1,19 +1,24 @@
 <main class="item-details-component child-component">
 
-
+    <div class="editmode">editmode: {{editmode}}</div>
     <button class="back-to-venue-details"
         mat-raised-button
         color="primary"
         (click)="onBackToVenueDetails()">back to venue details
     </button>
 
-    <div class="header-js">item details</div>
+    <div class="header-js">
+        <span class="title">item details:</span>&nbsp;
+        <span class="content">{{(item$|async)?.name}}</span>
+        <br>
+        <span class="content">{{(item$|async)?.id}}</span>
+    </div>
     <app-item-name></app-item-name>
-    <app-item-is-main-page></app-item-is-main-page>
-    <app-item-coordinates></app-item-coordinates>
-    <app-item-image></app-item-image>
-    <app-item-qr></app-item-qr>
-    <app-item-qr-local *ngIf="isAdmin"></app-item-qr-local>
-    <app-lscs></app-lscs>
+    <app-item-is-main-page *ngIf="editmode"></app-item-is-main-page>
+    <app-item-coordinates *ngIf="editmode"></app-item-coordinates>
+    <app-item-image *ngIf="editmode"></app-item-image>
+    <app-item-qr *ngIf="editmode"></app-item-qr>
+    <app-item-qr-local *ngIf="editmode"></app-item-qr-local>
+    <app-lscs *ngIf="editmode"></app-lscs>
 
 </main>

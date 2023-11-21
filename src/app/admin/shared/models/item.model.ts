@@ -1,7 +1,6 @@
-export interface Coordinates {
-    latitude: number;
-    longitude: number;
-}
+import { Coordinates } from './coordinates.model';
+
+
 
 export interface Item {
     id?: string;

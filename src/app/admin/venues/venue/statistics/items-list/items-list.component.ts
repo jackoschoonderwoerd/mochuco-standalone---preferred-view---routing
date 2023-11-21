@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as fromRoot from 'src/app/app.reducer'
 import { Store } from '@ngrx/store';
-import { Venue } from 'src/app/admin/shared/models/venue.model';
 import { ItemsService } from '../../items/items.service';
 import { Observable } from 'rxjs';
 import { Item } from 'src/app/admin/shared/models/item.model';
@@ -11,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ItemStatsComponent } from './item-stats/item-stats.component';
 import * as STATISTICS from '../store/statistics.actions'
 import { Router } from '@angular/router';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { DocumentData } from '@angular/fire/firestore';
 
 @Component({
     selector: 'app-items-list',
@@ -23,32 +24,31 @@ export class ItemsListComponent implements OnInit {
 
     items$: Observable<Item[]>
     items: Item[];
-    selectedItemId: string;
-    venue: Venue;
-
+    venue$: Observable<DocumentData>
 
     constructor(
         private store: Store<fromRoot.State>,
         private itemsService: ItemsService,
-        private router: Router
-    ) {
-
-    }
+        private router: Router,
+        private firestoreService: FirestoreService
+    ) { }
 
     ngOnInit(): void {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((venue: Venue) => {
-            if (venue) {
-                this.venue = venue
-                this.itemsService.getItems(venue.id).subscribe((items: Item[]) => {
+
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                console.log(venueId)
+                const pathToVenue = `venues/${venueId}`
+                this.venue$ = this.firestoreService.getDocument(pathToVenue)
+                const pathToItems = `venues/${venueId}/items`;
+                this.firestoreService.getCollection(pathToItems).subscribe((items: Item[]) => {
+                    console.log(items)
                     this.items = items
                 })
             }
-
         })
     }
     onGetStats(itemId: string) {
-        this.selectedItemId = itemId
-
         this.store.dispatch(new STATISTICS.SetItemIdStatistics(itemId))
     }
     onBackTodetails() {

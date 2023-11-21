@@ -17,6 +17,8 @@ import * as LSCACTIONS from '../../store/lsc.actions'
 import { LscsService } from '../../lscs.service';
 import { UiService } from 'src/app/admin/shared/ui.service';
 import { FirebaseError } from '@angular/fire/app';
+import { StoreService } from 'src/app/admin/admin-services/store.service';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-lsc-name',
@@ -33,85 +35,74 @@ import { FirebaseError } from '@angular/fire/app';
 })
 export class LscNameComponent implements OnInit {
 
-    selectedVenue: Venue;
-    selectedItem: Item;
-    selectedLanguage: string;
-    selectedLsc: LSC;
+
     lsc$: Observable<DocumentData>;
     form: FormGroup;
     editmode: boolean = false;
     nameAltered: boolean = false;
+    venueId: string;
+    itemId: string;
+    language: string;
+    pathToLsc: string
 
 
     constructor(
         private store: Store<fromRoot.State>,
         private fb: FormBuilder,
-        private lscsService: LscsService,
-        private uiService: UiService
+        private uiService: UiService,
+        private firestoreService: FirestoreService,
+        private lscsService: LscsService
     ) { }
 
     ngOnInit(): void {
-        this.lsc$ = this.store.select(fromRoot.getSelectedLSC);
         this.initForm()
-        this.getSelectedVenue();
-        this.getSelectedItem();
-        this.getSelectedLsc();
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId;
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.itemId = itemId;
+                        this.store.select(fromRoot.getAdminLanguage).subscribe((language: string) => {
+                            if (language) {
+                                this.editmode = true;
+                                this.language = language;
+                                this.pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
+                                this.firestoreService.getDocument(this.pathToLsc).subscribe((lsc: LSC) => {
+                                    if (lsc) {
+                                        this.patchForm(lsc.name)
+                                    }
+                                })
+                                this.lsc$ = this.firestoreService.getDocument(this.pathToLsc);
+                            } else {
+                                this.editmode = false;
+                            }
+                        })
+                    }
+                })
+            }
+        })
     }
+
+
 
     onKeyUp(e) {
         this.nameAltered = true;
     }
     onUpdateName() {
-        const updatedName = this.form.value.name
-        this.lscsService.updateLscName(
-            this.selectedVenue.id,
-            this.selectedItem.id,
-            this.selectedLsc.language,
-            this.form.value.name)
+        const name = this.form.value.name
+        this.firestoreService.updateDocument(this.pathToLsc, { name })
             .then((res: any) => {
-                const updatedLsc: LSC = {
-                    ...this.selectedLsc,
-                    name: updatedName
-                }
-                console.log(updatedLsc);
                 this.nameAltered = false;
                 this.uiService.openSnackbar('lsc name updated')
-                this.store.dispatch(new ADMIN.SetSelectedLSC(updatedLsc));
-
             })
             .catch((err: FirebaseError) => {
                 this.uiService.openSnackbar(`failed to update lsc name; ${err.message}`);
             })
     }
 
-    private getSelectedVenue() {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.selectedVenue = selectedVenue
-            } else {
-
-            }
-        })
-    }
-    private getSelectedItem() {
-        this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-            if (selectedItem) {
-                this.selectedItem = selectedItem
-            }
-        })
-    }
-    private getSelectedLsc() {
-        this.store.select(fromRoot.getSelectedLSC).subscribe((selectedLsc: LSC) => {
-            if (selectedLsc) {
-                this.selectedLsc = { ...selectedLsc }
-                this.patchForm();
-            }
-        })
-    }
-
-    private patchForm() {
+    private patchForm(lscName) {
         this.form.patchValue({
-            name: this.selectedLsc.name
+            name: lscName
         })
     }
 

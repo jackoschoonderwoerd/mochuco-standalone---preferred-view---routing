@@ -25,7 +25,10 @@ import * as ADMIN from './../admin/store/admin.actions'
 import { VenuesService } from '../admin/venues/venues.service';
 import { Router } from '@angular/router';
 import * as AUTH from 'src/app/auth/store/auth.actions'
-import { SetSelectedVenue } from '../admin/store/admin.actions';
+import { FirestoreService } from '../admin/admin-services/firestore.service';
+import { DocumentReference } from '@angular/fire/firestore';
+import { FirebaseError } from '@angular/fire/app';
+
 
 @Injectable({
     providedIn: 'root'
@@ -36,21 +39,34 @@ export class AuthService {
         private afAuth: Auth,
         private router: Router,
         private venuesService: VenuesService,
-        private store: Store<fromRoot.State>) { }
+        private store: Store<fromRoot.State>,
+        private firestoreService: FirestoreService) { }
 
     login(loginData: LoginData) {
         return signInWithEmailAndPassword(this.afAuth, loginData.email, loginData.password)
     }
+
     signup(mochucoUser: MochucoUser) {
-        console.log(mochucoUser)
+        // console.log(mochucoUser)
         return createUserWithEmailAndPassword(this.afAuth, mochucoUser.email, mochucoUser.password)
             .then((userCredential: UserCredential) => {
-                const auth = getAuth()
-                this.venuesService.storeUserInDb(userCredential.user.uid)
-                return updateProfile(auth.currentUser, {
-                    displayName: mochucoUser.displayName
-                })
-
+                return userCredential
+            })
+            .then((userCredential: UserCredential) => {
+                console.log(`user authenticated`)
+                const uid = userCredential.user.uid
+                const pathToUser = `users/${uid}`
+                const user = {
+                    uid: uid,
+                    venuesOwned: []
+                }
+                return this.firestoreService.setDoc(pathToUser, user)
+            })
+            .then((res: any) => {
+                console.log(`user with empty venues-owned added to firestore ; ${res}`)
+            })
+            .catch((err: FirebaseError) => {
+                console.log(`failed to add user; ${err.message}`)
             })
     }
 
@@ -60,6 +76,7 @@ export class AuthService {
         localStorage.removeItem('state');
         this.clearStore();
         this.router.navigateByUrl('/auth/login');
+        this.store.dispatch(new AUTH.SetIsLoggedIn(false))
     }
     updateDisplayName(displayName: string) {
         const auth = getAuth()
@@ -76,8 +93,8 @@ export class AuthService {
     }
     clearStore() {
         this.store.dispatch(new AUTH.SetIsAdmin(false))
-        this.store.dispatch(new ADMIN.SetSelectedVenue(null))
-        this.store.dispatch(new ADMIN.SetSelectedItem(null))
+        this.store.dispatch(new ADMIN.SetAdminVenueId(null))
+        this.store.dispatch(new ADMIN.SetAdminItemId(null))
     }
 
 }

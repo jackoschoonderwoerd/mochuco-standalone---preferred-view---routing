@@ -2,10 +2,13 @@
     <button mat-raised-button
         color="primary"
         (click)="onBackTodetails()">back to venue details</button>
+
     <div class="header-js">
         <div class="title">statistics for venue</div>
-        <div class="name">{{venue.name}}</div>
+        <div class="name"
+            *ngIf="venue$|async">{{(venue$|async)?.name}}</div>
     </div>
+
     <ul class="items-list">
         <li class="items-list-item"
             *ngFor="let item of items">

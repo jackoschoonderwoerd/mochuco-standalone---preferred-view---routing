@@ -3,26 +3,22 @@
     <div class="header-js">lsc description</div>
 
     <form [formGroup]="form">
+        <ngx-editor-menu [editor]="editor"
+            [toolbar]="toolbar"> </ngx-editor-menu>
         <div class="NgxEditor__Wrapper">
-            <ngx-editor-menu [editor]="editor"
-                [toolbar]="toolbar"> </ngx-editor-menu>
             <ngx-editor [editor]="editor"
                 (keyup)="onDescriptionAltered()"
                 spellcheck="false"
+                placeholder="add description"
                 formControlName="editorContent"> </ngx-editor>
         </div>
     </form>
-    <!-- <div class="html"
-        [innerHTML]="editorContent"></div> -->
     <button [disabled]="form.invalid"
         [ngClass]="descriptionAltered ? 'descriptionAltered':''"
         mat-raised-button
         color="primary"
         (click)="onSubmitDescriptionInput()">submit description</button>
-
-    <!-- <div class="raw-html"
-
-        *ngIf="isAdmin$|async">
-        {{(lsc$|async)?.description}}
-    </div> -->
+    <button mat-raised-button
+        color="primary"
+        (click)="onCancel()">cancel</button>
 </div>

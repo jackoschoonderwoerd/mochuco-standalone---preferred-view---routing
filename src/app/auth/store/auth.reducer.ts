@@ -1,14 +1,16 @@
 import {
-    IS_ADMIN
+    IS_ADMIN, IS_LOGGED_IN
 } from "./auth.actions"
 
 
 export interface AuthState {
     isAdmin: boolean;
+    isLoggedIn: boolean
 }
 
 let initialState: AuthState = {
-    isAdmin: false
+    isAdmin: false,
+    isLoggedIn: false
 }
 
 export function authReducer(state = initialState, action: any) {
@@ -20,6 +22,12 @@ export function authReducer(state = initialState, action: any) {
                 isAdmin: action.isAdmin
             }
         }
+        case IS_LOGGED_IN: {
+            return {
+                ...state,
+                isLoggedIn: action.isLoggedIn
+            }
+        }
         default: {
             return state
         }
@@ -27,4 +35,5 @@ export function authReducer(state = initialState, action: any) {
 }
 
 export const getIsAdmin = (authState: AuthState) => authState.isAdmin;
+export const getIsLoggedIn = (authState: AuthState) => authState.isLoggedIn;
 

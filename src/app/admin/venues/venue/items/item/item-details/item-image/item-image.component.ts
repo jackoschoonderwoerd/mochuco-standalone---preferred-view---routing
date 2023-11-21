@@ -5,7 +5,7 @@ import * as fromRoot from 'src/app/app.reducer'
 import { Venue } from 'src/app/admin/shared/models/venue.model';
 import { Item } from 'src/app/admin/shared/models/item.model';
 import { Observable } from 'rxjs';
-import { DocumentData } from '@angular/fire/firestore';
+import { DocumentData, FirestoreError } from '@angular/fire/firestore';
 import { ItemsService } from '../../../items.service';
 import { MatButtonModule } from '@angular/material/button';
 import { FirebaseError } from '@angular/fire/app';
@@ -13,6 +13,10 @@ import { UiService } from 'src/app/admin/shared/ui.service';
 import { ConfirmComponent } from 'src/app/admin/shared/confirm/confirm.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { StorageService } from 'src/app/admin/admin-services/storage.service';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { StorageError } from '@angular/fire/storage';
+import { StoreService } from 'src/app/admin/admin-services/store.service';
 
 @Component({
     selector: 'app-item-image',
@@ -33,75 +37,64 @@ export class ItemImageComponent implements OnInit {
     item$: Observable<DocumentData>
     editmode: boolean = false;
     isLoading: boolean = false;
+    venueId: string;
+    itemId: string
 
 
     constructor(
         private store: Store<fromRoot.State>,
         private itemsService: ItemsService,
-        private uiService: UiService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private storageService: StorageService,
+        private firestoreService: FirestoreService,
+        private storeService: StoreService
 
     ) { }
 
     ngOnInit(): void {
-        this.getSelectedVenue()
-            .then((selectedVenue: Venue) => {
-                this.selectedVenue = { ...selectedVenue }
-            })
-            .then(() => {
-                this.getSelectedItem().then((selectedItem: Item) => {
-                    this.selectedItem = { ...selectedItem }
-                    this.item$ = this.itemsService.getItemByItemId(this.selectedVenue.id, this.selectedItem.id)
+        this.getItem()
+
+
+    }
+    getItem() {
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.itemId = itemId;
+                        const pathToItem = `venues/${venueId}/items/${itemId}`
+                        this.item$ = this.firestoreService.getDocument(pathToItem)
+                    }
                 })
-            })
-            .catch((err: any) => {
-                console.log(err)
-            })
-    }
-
-    getSelectedVenue() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-                if (selectedVenue) {
-                    resolve(selectedVenue);
-                }
-            })
-
+            }
         })
-        return promise
     }
-    getSelectedItem() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-                if (selectedItem) {
-                    resolve(selectedItem)
-                }
-            })
 
-        })
-        return promise
-    }
+
 
     onItemImageInputChange(e) {
         this.isLoading = true;
+
+        const itemStoragePath = `venues/${this.venueId}/items/${this.itemId}/itemImage`
         const file = e.target.files[0];
-        this.itemsService.addItemImageToStorage(this.selectedVenue.id, this.selectedItem.id, file)
-            .then((url: string) => {
-                this.uiService.openSnackbar('image file stored');
-                this.itemsService.updateItemImageUrl(this.selectedVenue.id, this.selectedItem.id, url)
-            })
-            .catch((err: FirebaseError) => {
-                this.uiService.openSnackbar(`failed to store image file; ${err.message}`)
+
+        this.storageService.storeObject(itemStoragePath, file)
+            .then((imageUrl: string) => {
+                console.log(imageUrl);
                 this.isLoading = false;
+                const path = `venues/${this.venueId}/items/${this.itemId}/`
+                this.firestoreService.updateDocument(path, { imageUrl: imageUrl })
+                    .then((res) => {
+                        console.log(res)
+                    })
+                    .catch((err: FirestoreError) => {
+                        console.error(err)
+                    })
             })
-            .then((res: any) => {
-                this.uiService.openSnackbar('item image url updated')
-                this.isLoading = false;
+            .catch((err: StorageError) => {
+                console.error(err)
             })
-            .catch((err: FirebaseError) => {
-                this.uiService.openSnackbar(`failed to update item image url; ${err.message}`);
-                this.isLoading = false;
-            });
     }
 
     onDeleteItemImage() {
@@ -112,20 +105,18 @@ export class ItemImageComponent implements OnInit {
         })
         dialogRef.afterClosed().subscribe((res: any) => {
             if (res) {
-                this.itemsService.deleteItemImageFileFromStorage(this.selectedVenue.id, this.selectedItem.id)
+
+                const path = `venues/${this.venueId}/items/${this.itemId}/itemImage`
+                this.storageService.deleteObject(path)
                     .then((res: any) => {
-                        this.uiService.openSnackbar(`item image file removed from storage`);
-                        this.itemsService.updateItemImageUrl(this.selectedVenue.id, this.selectedItem.id, null)
+                        console.log('image file removed from storage')
+                        const path = `venues/${this.venueId}/items/${this.itemId}/`
+                        return this.firestoreService.updateDocument(path, { imageUrl: null });
                     })
-                    .catch((err: FirebaseError) => {
-                        this.uiService.openSnackbar(`failed to remove item image file from storage; ${err.message}`)
+                    .catch((err: StorageError) => {
+                        console.error(`failed to remove image file from DB; ${err.message}`)
                     })
-                    .then((res: any) => {
-                        this.uiService.openSnackbar('item image url updated')
-                    })
-                    .catch((err: FirebaseError) => {
-                        this.uiService.openSnackbar(`failed to update item image url; ${err.message}`)
-                    })
+
             }
         })
     }

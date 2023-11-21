@@ -4,7 +4,7 @@
         [qrdata]="qrDataString"
         [width]="getWidth()"
         [errorCorrectionLevel]="'M'"></qrcode>
-    <div class="venue-name">{{adminSelectedVenue.name}}</div>
+    <div class="venue-name">{{(venue$|async)?.name}}</div>
 
     <button class="download"
         mat-raised-button

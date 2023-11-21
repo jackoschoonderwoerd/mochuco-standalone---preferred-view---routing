@@ -21,6 +21,7 @@ import { VenuesService } from 'src/app/admin/venues/venues.service';
 import { ItemsService } from 'src/app/admin/venues/venue/items/items.service';
 import { Venue } from 'src/app/admin/shared/models/venue.model';
 import { Item } from 'src/app/admin/shared/models/item.model';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-scanner',
@@ -67,11 +68,11 @@ export class ScannerComponent implements AfterViewInit {
         private store: Store<fromRoot.State>,
         private venuesService: VenuesService,
         private itemsService: ItemsService,
-        private qrCode: NgxScannerQrcodeService
+        private firestoreService: FirestoreService
     ) { }
 
     ngAfterViewInit(): void {
-        console.log(this.scanner)
+        // console.log(this.scanner)
         this.scanner.start();
         // this.action.isReady.subscribe((res: any) => {
         //     console.log(res);
@@ -79,23 +80,26 @@ export class ScannerComponent implements AfterViewInit {
         // });
     }
     onEvent(e: any[], action) {
-        console.log(e[0].value)
+        // console.log(e[0].value)
         const link: string = e[0].value;
-        console.log(link)
+        // console.log(link)
         const venueIdStart: number = link.indexOf('venueId=');
         const venueIdEnd: number = link.indexOf('&')
         const itemIdStart: number = link.indexOf('itemId=');
 
         const venueId: string = link.substring(venueIdStart + 8, venueIdEnd);
-        console.log('venueId', venueId);
-        this.venuesService.getVenueByVenueId(venueId).subscribe((visitorSelectedVenue: Venue) => {
+
+        const pathToVenue = `venues/${venueId}`;
+        this.firestoreService.getDocument(venueId).subscribe((visitorSelectedVenue: Venue) => {
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(visitorSelectedVenue.id))
             this.store.dispatch(new VISITOR.SetVisitorSelectedVenue(visitorSelectedVenue))
         })
 
+
         const itemId: string = link.substring(itemIdStart + 7)
-        console.log('itemId', itemId);
+        // console.log('itemId', itemId);
         this.itemsService.getItemByItemId(venueId, itemId).subscribe((visitorSelectedItem: Item) => {
-            console.log(visitorSelectedItem);
+            // console.log(visitorSelectedItem);
             this.store.dispatch(new VISITOR.SetVisitorSelectedItem(visitorSelectedItem))
         })
         this.router.navigateByUrl('/scan-result')

@@ -1,6 +1,8 @@
 import { Action } from "@ngrx/store";
 import { Item } from "src/app/admin/shared/models/item.model";
 import { LSC } from "src/app/admin/shared/models/language-specific-content.model";
+import { Venue } from "src/app/admin/shared/models/venue.model";
+
 
 
 
@@ -12,6 +14,7 @@ export const VISITOR_ITEM_ID = '[Visitor] Item Id';
 export const MOCHUCO_ACTIVE = '[Visitor] Mochuco Active';
 export const VISITOR_SELECTED_ITEM = '[Visitor] Visitor Selected Item';
 export const VISITOR_SELECTED_LSC = '[Visitor] Visitor Selected Lsc';
+export const VISITOR_SELECTED_VENUE = '[Visitor] Visitor Selected Venue;'
 
 export const VISITOR_SELECTED_VIEW = '[Visitor] Selected View';
 
@@ -45,6 +48,10 @@ export class SetVisitorSelectedItem implements Action {
 export class SetVisitorSelectedLsc implements Action {
     readonly type = VISITOR_SELECTED_LSC;
     constructor(public visitorSelectedLsc: LSC) { }
+}
+export class SetVisitorSelectedVenue implements Action {
+    readonly type = VISITOR_SELECTED_VENUE;
+    constructor(public visitorSelectedVenue: Venue) { }
 }
 export class SetVisitorSelectedView implements Action {
     readonly type = VISITOR_SELECTED_VIEW;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
     FormGroup,
@@ -28,6 +28,7 @@ import { LogoComponent } from './logo/logo.component';
 import { VenueNameComponent } from './venue-name/venue-name.component';
 import { VenueQrComponent } from './venue-qr/venue-qr.component';
 import { VenueLocalQrComponent } from './venue-local-qr/venue-local-qr.component';
+import { FirestoreService } from '../../admin-services/firestore.service';
 
 @Component({
     selector: 'app-venue',
@@ -50,7 +51,7 @@ import { VenueLocalQrComponent } from './venue-local-qr/venue-local-qr.component
 })
 export class AddVenueComponent implements OnInit {
 
-    selectedVenue: Venue;
+    // selectedVenue: Venue;
     form: FormGroup
     editmode: boolean = false;
     items$: Observable<any[]>;
@@ -58,51 +59,34 @@ export class AddVenueComponent implements OnInit {
     isAdmin$: Observable<boolean>
 
     constructor(
-        private fb: FormBuilder,
-        private venuesService: VenuesService,
+
         private router: Router,
         private store: Store<fromRoot.State>,
-        private itemsService: ItemsService,
 
     ) { }
 
     ngOnInit(): void {
+
         this.isAdmin$ = this.store.select(fromRoot.getIsAdmin)
-        this.initForm()
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
                 this.editmode = true;
-                this.selectedVenue = { ...selectedVenue };
-                this.venue$ = this.venuesService.getVenueByVenueId(selectedVenue.id)
-                this.patchForm(selectedVenue)
-                this.items$ = this.itemsService.getItems(selectedVenue.id)
             }
         })
     }
 
-    initForm() {
-        this.form = this.fb.group({
-            name: new FormControl(null, [Validators.required])
-        })
-    }
 
-    patchForm(venue: Venue) {
-        this.form.patchValue({
-            name: venue.name
-        })
-    }
     editmodeChanged(status: boolean) {
         this.editmode = status;
     }
 
 
     onBackToVenues() {
-        this.store.dispatch(new ADMIN.SetSelectedVenue(null));
+        this.store.dispatch(new ADMIN.SetAdminVenueId(null));
         this.router.navigateByUrl('admin/venues');
     }
     onStatistics() {
-        console.log('onStatistics()')
+        // console.log('onStatistics()')
         this.router.navigateByUrl('/admin/statistics')
     }
-
 }

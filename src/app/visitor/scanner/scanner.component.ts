@@ -33,6 +33,9 @@ import { VenueIdItemId } from 'src/app/admin/shared/models/venueIdItemId';
 import { LscsService } from '../../admin/venues/venue/items/item/item-details/lscs/lscs.service';
 
 import { VisitorService } from '../visitor.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LocationOptionsComponent } from './location-options/location-options.component';
+import * as ADMIN from 'src/app/admin/store/admin.actions';
 
 
 
@@ -98,7 +101,8 @@ export class ScannerComponent implements AfterViewInit, OnInit {
         // private qrCode: NgxScannerQrcodeService,
 
         private lscsService: LscsService,
-        private visitorsService: VisitorService
+
+        private dialog: MatDialog
 
     ) { }
 
@@ -132,45 +136,45 @@ export class ScannerComponent implements AfterViewInit, OnInit {
     onEvent(e: any[], action) {
         this.scanner.stop();
         const url = new URL(e[0].value)
-        // alert(url)
         this.store.dispatch(new VISITOR.SetVisitorSelectedView('item'));
         const queryParameters = url.searchParams;
         const venueId = queryParameters.get('venueId');
         const itemId = queryParameters.get('itemId');
-        // console.log(venueId, itemId);
         const venueIdItemId: VenueIdItemId = {
             venueId: venueId,
             itemId: itemId
         }
         this.store.dispatch(new NAVIGATION.SetPreviousItemData(venueIdItemId));
         if (venueId && !itemId) {
-
-            // console.log(venueId, itemId)
-            this.visitorService.storeMainPageItemId(venueId);
-            this.visitorService.storeVisitorSelectedVenueId(venueId);
-            this.scannerService.getNearestItemId(venueId).then((nearestItemId: string) => {
-                console.log(nearestItemId);
-                this.visitorService.storeVisitorSelectedItemId(nearestItemId);
+            console.log('no itemId', venueId, itemId);
+            this.scannerService.getMainPageItemId(venueId).then((mainPageItemId: string) => {
+                this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
             })
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+            // this.store.dispatch(new ADMIN.SetAdminVenueId(venueId))
+            // return;
+            // this.visitorService.storeMainPageItemId(venueId);
 
+            this.scannerService.getNearestItemId(venueId)
+                .then((nearestItemId: string) => {
+                    console.log('nearestItemId', nearestItemId);
+                    // this.visitorService.storeVisitorSelectedItemId(nearestItemId);
+                    this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
+                })
+                .catch((err: any) => {
+                    console.error(err);
+                })
         }
         if (venueId && itemId) {
-            this.visitorService.storeMainPageItemId(venueId);
-            this.visitorService.storeVisitorSelectedVenueId(venueId)
-            this.visitorService.storeVisitorSelectedItemId(itemId)
-            // this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
-
-            this.visitorsService.storeMainPageItemId(venueId);
-            // this.scannerService.getAndSortItems(venueId)
-            this.visitorsService.storeVisitorSelectedVenueId(venueId);
-
-        }
-        if (venueId && itemId) {
-            this.visitorsService.storeMainPageItemId(venueId);
-            this.visitorsService.storeVisitorSelectedVenueId(venueId)
-            this.visitorsService.storeVisitorSelectedItemId(itemId)
-
-
+            this.scannerService.getMainPageItemId(venueId).then((mainPageItemId: string) => {
+                this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+            })
+            // this.store.dispatch(new ADMIN.SetAdminVenueId(venueId))
+            // this.visitorService.storeMainPageItemId(venueId);
+            // this.visitorService.storeVisitorSelectedVenueId(venueId)
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+            // this.visitorService.storeVisitorSelectedItemId(itemId)
+            this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
         }
 
         if (!venueId && !itemId) {

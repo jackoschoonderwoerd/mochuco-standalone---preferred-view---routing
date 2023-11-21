@@ -1,22 +1,21 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
-import { Venue } from 'src/app/admin/shared/models/venue.model';
-import { Item } from 'src/app/admin/shared/models/item.model';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'src/app/app.reducer';
-import * as ADMIN from 'src/app/admin/store/admin.actions'
-import { Observable, first, from } from 'rxjs';
-import { ItemsService } from '../../../items.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { ConfirmComponent } from 'src/app/admin/shared/confirm/confirm.component';
-import { SELECTED_ITEM } from '../../../../../../store/admin.actions';
-import { UiService } from 'src/app/admin/shared/ui.service';
 import { FirebaseError } from '@angular/fire/app';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { Item } from 'src/app/admin/shared/models/item.model';
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
-import { LscsService } from './lscs.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { Observable, take } from 'rxjs';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Venue } from 'src/app/admin/shared/models/venue.model';
+import { WarningComponent } from 'src/app/admin/shared/warning/warning.component';
+import * as ADMIN from 'src/app/admin/store/admin.actions'
+import * as fromRoot from 'src/app/app.reducer';
+
 
 @Component({
     selector: 'app-lscs',
@@ -31,106 +30,73 @@ import { LscsService } from './lscs.service';
 })
 export class LscsComponent implements OnInit {
 
-    selectedVenue: Venue;
-    selectedItem: Item;
-    lscs$: Observable<any[]>
+    lscs$: Observable<any[]>;
+    venueId: string;
+    itemId: string;
 
     constructor(
         private router: Router,
         private store: Store,
-        private itemsService: ItemsService,
         private dialog: MatDialog,
-        private uiService: UiService,
-        private LscsService: LscsService) { }
+        private firesStoreService: FirestoreService) { }
 
     ngOnInit(): void {
-        console.log('oninit languages.component')
-        let selectedVenueX: Venue = null;
-        let selectedItemX: Item = null;
-
-
-
-        this.getAdminSelectedVenue()
-            .then((selectedVenue: Venue) => {
-                selectedVenueX = selectedVenue
-                return this.getSelectedItem()
-            })
-            .then((selectedItem: Item) => {
-                console.log(selectedItem.name);
-                selectedItemX = selectedItem
-            })
-            .then(() => {
-                console.log(selectedVenueX.id);
-                console.log(selectedItemX.id);
-                this.lscs$ = this.LscsService.getLscs(selectedVenueX.id, selectedItemX.id)
-
-            })
-            .catch(err => console.log(err))
-
-    }
-
-    getVisitorSelectedVenue() {
-
-    }
-
-    getAdminSelectedVenue() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedVenue).subscribe((adminSelectedVenue: Venue) => {
-                if (adminSelectedVenue) {
-                    resolve(adminSelectedVenue)
-                } else {
-                    reject('no adminSelectedVenue in store')
-                }
-            })
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId;
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.itemId = itemId
+                        const pathTolanguages = `venues/${venueId}/items/${itemId}/languages`;
+                        this.lscs$ = this.firesStoreService.getCollection(pathTolanguages)
+                    }
+                })
+            }
         })
-        return promise
-    }
-
-    getSelectedItem() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-                if (selectedItem) {
-                    console.log(selectedItem.id);
-                    resolve(selectedItem)
-                } else {
-                    reject('item not available');
-                }
-            })
-        })
-        return promise
     }
 
     onAddLanguage() {
         this.router.navigateByUrl('/admin/lsc-details');
+        this.store.dispatch(new ADMIN.SetAdminLanguage(null));
     }
     onDetails(lsc: LSC) {
-        console.log('onDetails()');
-        this.store.dispatch(new ADMIN.SetSelectedLSC(lsc))
+        this.store.dispatch(new ADMIN.SetAdminLanguage(lsc.language));
         this.router.navigateByUrl('/admin/lsc-details')
     }
-    onDelete(language: string) {
-        const dialogRef = this.dialog.open(ConfirmComponent, {
-            data: {
-                message: 'Are you sure? This will permanently delete this language.'
-            }
-        })
-        dialogRef.afterClosed().subscribe((res: any) => {
-            if (res) {
-                this.LscsService.deleteLscFromItem(
-                    this.selectedVenue.id,
-                    this.selectedItem.id,
-                    language
-                )
-                    .then((res: any) => {
-                        this.uiService.openSnackbar('language deleted')
-                    })
-                    .catch((err: FirebaseError) => {
-                        this.uiService.openSnackbar(`failed to delete language; ${err.message}`);
-                    });
+
+    onDeleteLsc(language: string) {
+        const lscPath = `venues/${this.venueId}/items/${this.itemId}/languages/${language}`;
+
+        this.firesStoreService.getDocument(lscPath).pipe(take(1)).subscribe((lsc: LSC) => {
+            if (lsc.audioUrl) {
+                this.warnLanguageNotEmpty()
+            } else {
+                const dialogRef = this.dialog.open(ConfirmComponent, {
+                    data: {
+                        message: `Are you sure? This will permanently delete the language`
+                    }
+                })
+                dialogRef.afterClosed().subscribe((res: boolean) => {
+                    if (res) {
+                        this.firesStoreService.deleteDocument(lscPath)
+                            .then((res: any) => {
+                                console.log('lsc deleted');
+                                this.store.dispatch(new ADMIN.SetAdminLanguage(null))
+                            })
+                            .catch((err: FirebaseError) => {
+                                console.error(`failed to delete language; ${err.message}`)
+                            })
+                    }
+                })
             }
         })
     }
-    onCancel() {
 
+    private warnLanguageNotEmpty() {
+        this.dialog.open(WarningComponent, {
+            data: {
+                message: 'This language is not empty, delete the audio file first'
+            }
+        })
     }
 }

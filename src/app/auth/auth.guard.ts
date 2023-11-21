@@ -14,14 +14,16 @@ export const authGuard: CanActivateFn = (route, state) => {
     const dialog = inject(MatDialog)
 
     if (currentUser) {
+
+        router.navigateByUrl('admin/venues')
         return true;
     } else {
-        router.navigateByUrl('/auth/login')
-        dialog.open(VisitorErrorPageComponent, {
-            data: {
-                message: 'You need to be logged in in order to have access to this part of the website.'
-            }
-        })
+        // router.navigateByUrl('/auth/login')
+        // dialog.open(VisitorErrorPageComponent, {
+        //     data: {
+        //         message: 'You need to be logged in in order to have access to this part of the website.'
+        //     }
+        // })
 
 
         return (false)

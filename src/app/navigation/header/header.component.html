@@ -26,11 +26,25 @@
             <mat-icon>streetview</mat-icon>
         </a>
 
+        <!-- <a class="venue-logo"
+            (click)="onVenueLogo()">
+            <img [src]="venueLogoUrl"
+                alt="VL">
+        </a> -->
+
         <a *ngIf="(visitorSelectedView$|async) !== 'main-page' && (visitorMainPageId$|async) != ''"
             class="venue-logo"
             (click)="onVenueLogo()">
             <img [src]="venueLogoUrl"
                 alt="VL">
+        </a>
+
+        <a *ngIf="isAdmin$|async"
+            class="developer-mode"
+            (click)="onDeveloperMode()">
+            <span class="material-icons"
+                [style.color]="(developerMode$|async)?'red': 'lightgray'">developer_mode</span>
+            <!-- <mat-icon>developer_mode</mat-icon> -->
         </a>
 
         <a class="venues"

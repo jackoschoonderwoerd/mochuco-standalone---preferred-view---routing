@@ -7,6 +7,10 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { UpdateUserComponent } from './update-user/update-user.component';
 import { UiService } from '../shared/ui.service';
+import { WarningComponent } from '../shared/warning/warning.component';
+import { FirestoreService } from '../admin-services/firestore.service';
+import { MochucoUser } from '../shared/models/mochuco-user.model';
+import { ConfirmComponent } from '../shared/confirm/confirm.component';
 
 @Component({
     selector: 'app-user-data',
@@ -20,7 +24,8 @@ export class UserDataComponent {
         public afAuth: Auth,
         private authService: AuthService,
         private dialog: MatDialog,
-        private uiService: UiService) { }
+        private uiService: UiService,
+        private firestoreService: FirestoreService) { }
 
     onEditUsername() {
         const dialogRef = this.dialog.open(UpdateUserComponent, {
@@ -40,5 +45,34 @@ export class UserDataComponent {
             }
         })
 
+    }
+    onDeleteAccount() {
+        const dialogRef = this.dialog.open(ConfirmComponent, {
+            data: {
+                message: 'This will permanently delete your account'
+            }
+        })
+        dialogRef.afterClosed().subscribe((res: boolean) => {
+            if (res) {
+                const uid = this.afAuth.currentUser.uid
+                const pathToUser = `users/${uid}`
+                this.firestoreService.getDocument(pathToUser)
+                    .subscribe((user) => {
+                        console.log(user);
+                        if (user.venuesOwned.length > 0) {
+                            this.dialog.open(WarningComponent, {
+                                data: {
+                                    message: `there are/is still ${user.venuesOwned.length} venue/venues associated with this account. Delete these first before deleting the account`
+                                }
+                            })
+                        } else {
+                            this.deleteAccount(uid)
+                        }
+                    })
+            }
+        })
+    }
+    private deleteAccount(uid: string) {
+        console.log('proceed deleting account')
     }
 }

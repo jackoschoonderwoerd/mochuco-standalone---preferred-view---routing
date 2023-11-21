@@ -41,14 +41,18 @@ export const reducers: ActionReducerMap<State> = {
 }
 
 export function setStateFromLs(stateFormLs: State) {
-    console.log(stateFormLs)
+    // console.log(stateFormLs)
     reducers.admin
 }
 
 export const getAdminState = createFeatureSelector<fromAdmin.AdminState>('admin');
-export const getSelectedVenue = createSelector(getAdminState, fromAdmin.getSelectedVenue);
-export const getSelectedItem = createSelector(getAdminState, fromAdmin.getSelectedItem);
-export const getSelectedLSC = createSelector(getAdminState, fromAdmin.getSelectedLSC);
+// export const getSelectedVenue = createSelector(getAdminState, fromAdmin.getSelectedVenue);
+// export const getSelectedItem = createSelector(getAdminState, fromAdmin.getSelectedItem);
+// export const getSelectedLSC = createSelector(getAdminState, fromAdmin.getSelectedLSC);
+export const getAdminVenueId = createSelector(getAdminState, fromAdmin.getAdminVenueId);
+export const getAdminItemId = createSelector(getAdminState, fromAdmin.getAdminItemId);
+export const getAdminLanguage = createSelector(getAdminState, fromAdmin.getAdminLanguage);
+
 
 
 export const getUiState = createFeatureSelector<fromUi.UiState>('ui')
@@ -70,7 +74,8 @@ export const getLSCNameDescriptionChanged = createSelector(getLSCState, fromLSC.
 // export const getLSCDescription = createSelector(getLSCState, fromLSC.getLSCDescription);
 
 export const getAuthState = createFeatureSelector<fromAuth.AuthState>('auth');
-export const getIsAdmin = createSelector(getAuthState, fromAuth.getIsAdmin)
+export const getIsAdmin = createSelector(getAuthState, fromAuth.getIsAdmin);
+export const getIsLoggedIn = createSelector(getAuthState, fromAuth.getIsLoggedIn)
 // getLSCNameDescriptionChanged
 
 export const getNavigationState = createFeatureSelector<fromNavigation.NavigationState>('navigation');
@@ -78,6 +83,7 @@ export const getMochucoActive = createSelector(getNavigationState, fromNavigatio
 export const getPreviousItemData = createSelector(getNavigationState, fromNavigation.getPreviousItemData);
 export const getMainPageItemData = createSelector(getNavigationState, fromNavigation.getMainPageItemData);
 export const getMainPageActive = createSelector(getNavigationState, fromNavigation.getMainPageActive);
+export const getDeveloperMode = createSelector(getNavigationState, fromNavigation.getDeveloperMode);
 
 
 export const getStatisticsState = createFeatureSelector<fromStatistics.StatisticsState>('statistics');

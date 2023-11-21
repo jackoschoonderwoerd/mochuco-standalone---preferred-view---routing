@@ -34,12 +34,24 @@ export class ItemStatsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((venue: Venue) => {
-            if (venue) {
-                this.store.select(fromRoot.getItemIdStatistics).pipe(take(1)).subscribe((itemId: string) => {
+        this.store.select(fromRoot.getItemIdStatistics).subscribe((itemId: string) => {
+            this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+                this.statisticsService.getVisitsArray(venueId, itemId).subscribe((visitsData: any) => {
+                    if (visitsData) {
+                        this.visitsDataArray = visitsData.visits
+                    } else {
+                        this.visitsDataArray = null
+                    }
+                })
+            })
+        })
+        return
+        this.store.select(fromRoot.getAdminItemId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.store.select(fromRoot.getItemIdStatistics).subscribe((itemId: string) => {
                     if (itemId) {
-                        console.log(itemId);
-                        this.statisticsService.getVisitsArray(venue.id, itemId).subscribe((visitsData: any) => {
+                        console.log(itemId)
+                        this.statisticsService.getVisitsArray(venueId, itemId).subscribe((visitsData: any) => {
                             if (visitsData) {
                                 this.visitsDataArray = visitsData.visits
                             } else {

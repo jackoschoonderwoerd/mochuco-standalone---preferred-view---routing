@@ -6,5 +6,7 @@
         [qrdata]="qrDataString"
         [width]="getWidth()"
         [errorCorrectionLevel]="'M'"></qrcode>
-    <div class="venue-name">{{selectedVenue.name}}</div>
+    <div class="venue-name">
+        {{(venue$|async)?.name}}
+    </div>
 </div>

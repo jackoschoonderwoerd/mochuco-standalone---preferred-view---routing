@@ -14,6 +14,7 @@ import { LSC } from 'src/app/admin/shared/models/language-specific-content.model
 import { MapComponent } from './map/map.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { VenuesService } from 'src/app/admin/venues/venues.service';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-scan-result',
@@ -30,139 +31,130 @@ export class ScanResultComponent implements OnInit {
     lsc$: Observable<DocumentData>;
     items: Item[];
     mochucoVenueId: string = 'BuGKIwQAD92zjMvUFCgE';
-    mochucoItemId: string = 'pSh9bg8LR8j0AdNYLt6i';
+    mochucoMainPageItemId: string = 'pSh9bg8LR8j0AdNYLt6i';
     language: string = 'dutch'
 
     constructor(
 
 
         private store: Store<fromRoot.State>,
-        private router: Router,
         private lscsService: LscsService,
         private itemsService: ItemsService,
-        private venuesService: VenuesService,
+
+        private firestoreService: FirestoreService
 
 
     ) { }
     ngOnInit(): void {
         this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
-
             this.store.select(fromRoot.getVisitorItemId).subscribe((itemId: string) => {
+                const pathToItem = `venues/${venueId}/items/${itemId}`;
+                this.item$ = this.firestoreService.getDocument(pathToItem);
                 this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((language: string) => {
-                    this.item$ = this.itemsService.getItemByItemId(venueId, itemId)
-                    this.lsc$ = this.lscsService.getLsc(venueId, itemId, language);
+                    const pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
+                    this.lsc$ = this.firestoreService.getDocument(pathToLsc)
+
                 });
             });
         });
 
         this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((language: string) => {
-            console.log(language)
-            // this.language = language;
             this.store.select(fromRoot.getVisitorSelectedView).subscribe((view: string) => {
                 console.log(view)
                 if (view === 'mochuco') {
-                    this.setupForMochuco()
-                    console.log(this.language)
-                    this.item$ = this.itemsService.getItemByItemId(this.mochucoVenueId, this.mochucoItemId);
-                    this.lsc$ = this.lscsService.getLsc(this.mochucoVenueId, this.mochucoItemId, language)
+                    this.setupForMochuco(language)
                 } else if (view === 'item') {
-                    this.setupForItem()
-                    this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
-                        this.store.select(fromRoot.getVisitorItemId).subscribe((itemId: string) => {
-                            this.item$ = this.itemsService.getItemByItemId(venueId, itemId);
-                            this.lsc$ = this.lscsService.getLsc(venueId, itemId, language);
-                        })
-                    })
+                    this.setupForItem(language)
                 } else if (view === 'main-page') {
-                    this.setupForMainPage()
-                    this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
-                        this.store.select(fromRoot.getVisitorMainPageId).subscribe((mainPageItemId: string) => {
-                            this.item$ = this.itemsService.getItemByItemId(venueId, mainPageItemId);
-                            this.lsc$ = this.lscsService.getLsc(venueId, mainPageItemId, language)
-                        })
-                    })
+                    this.setupForMainPage(language)
                 }
             })
         })
-        // this.item$ = this.store.select(fromRoot.getVisitorSelectedItem)
+    }
+
+    setupForMochuco(language: string) {
+        console.log('setupForMochuco(): ', language)
+        const pathToMochucoMainPageItem = `venues/${this.mochucoVenueId}/items/${this.mochucoMainPageItemId}`;
+        this.item$ = this.firestoreService.getDocument(pathToMochucoMainPageItem);
+        const pathToLsc = `venues/${this.mochucoVenueId}/items/${this.mochucoMainPageItemId}/languages/${language}`;
+        this.lsc$ = this.firestoreService.getDocument(pathToLsc);
+    }
+
+    setupForItem(language: string) {
+        console.log('setupForItem(): ', language)
         this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
             this.store.select(fromRoot.getVisitorItemId).subscribe((itemId: string) => {
-                this.item$ = this.itemsService.getItemByItemId(venueId, itemId)
-                this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((language: string) => {
-                    this.lsc$ = this.lscsService.getLsc(venueId, itemId, language);
-                })
-            })
-        })
-        // this.lsc$ = this.store.select(fromRoot.getVisitorSelectedLsc);
-        // this.store.dispatch(new VISITOR.SetVisitorActive(true));
-    }
-
-    setupForMochuco() {
-
-    }
-    setupForItem() {
-
-    }
-    setupForMainPage() {
-
-    }
-
-    getItems(visitorSelectedVenueId: string) {
-        this.itemsService.getItems(visitorSelectedVenueId).subscribe((items: Item[]) => {
-            this.items = items
-            this.items.forEach((item: Item) => {
-                console.log(item.name, item.metersFromVisitor)
-                if (item.coordinates) {
-                    // console.log(typeof item.coordinates.latitude);
-                    // console.log(typeof item.coordinates.longitude);
-                    this.getDistanceFromUser(item.coordinates.latitude, item.coordinates.longitude)
-                        .subscribe((metersFromVisitor: number) => {
-                            item.metersFromVisitor = metersFromVisitor
-                            // console.log(item.name);
-                            // console.log(metersFromVisitor);
-                            this.items = this.items.sort((a: Item, b: Item) => {
-                                return a.metersFromVisitor - b.metersFromVisitor
-                            })
-                            // this.store.dispatch(new VISITOR.SetVisitorSelectedItem(this.items[0]))
-                        })
-                }
+                const pathToItem = `venues/${venueId}/items/${itemId}`
+                this.item$ = this.firestoreService.getDocument(pathToItem);
+                const pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
+                this.lsc$ = this.firestoreService.getDocument(pathToLsc)
             })
         })
     }
 
-
-
-    private getDistanceFromUser(itemLatitude: number, itemLongitude: number) {
-
-        const distanceToObject = new Observable(observer => {
-            navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
-                if (!position) {
-                    this.router.navigate(['/user/user-error-page', { message: 'can\'t determinate users geolocation' }])
-                } else {
-                    const userLat = position.coords.latitude;
-                    const userLon = position.coords.longitude;
-                    const distanceFromObject = this.distanceFromObject(userLat, userLon, itemLatitude, itemLongitude);
-                    observer.next(distanceFromObject);
-                    observer.complete();
-                }
+    setupForMainPage(language: string) {
+        console.log('setupForMainPage(): ', language)
+        this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
+            this.store.select(fromRoot.getVisitorMainPageId).subscribe((mainPageItemId: string) => {
+                const pathToMainPageItem = `venues/${venueId}/items/${mainPageItemId}`;
+                this.item$ = this.firestoreService.getDocument(pathToMainPageItem);
+                const pathToLsc = `venues/${venueId}/items/${mainPageItemId}/languages/${language}`;
+                this.lsc$ = this.firestoreService.getDocument(pathToLsc)
             })
         })
-
-        return distanceToObject
-
     }
 
+    // getItems(visitorSelectedVenueId: string) {
+    //     this.itemsService.getItems(visitorSelectedVenueId).subscribe((items: Item[]) => {
+    //         this.items = items
+    //         this.items.forEach((item: Item) => {
+    //             console.log(item.name, item.metersFromVisitor)
+    //             if (item.coordinates) {
+    //                 this.getDistanceFromUser(item.coordinates.latitude, item.coordinates.longitude)
+    //                     .subscribe((metersFromVisitor: number) => {
+    //                         item.metersFromVisitor = metersFromVisitor
+    //                         this.items = this.items.sort((a: Item, b: Item) => {
+    //                             return a.metersFromVisitor - b.metersFromVisitor
+    //                         })
+    //                     })
+    //             }
+    //         })
+    //     })
+    // }
 
-    distanceFromObject(latObject: number, lonObject: number, latVisitor: number, lonVisitor: number) {  // generally used geo measurement function
 
-        var R = 6378.137; // Radius of earth in KM
-        var dLat = latVisitor * Math.PI / 180 - latObject * Math.PI / 180;
-        var dLon = lonVisitor * Math.PI / 180 - lonObject * Math.PI / 180;
-        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(latObject * Math.PI / 180) * Math.cos(latVisitor * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        var d = R * c;
-        return Math.round(d * 1000); // meters
-    }
+
+    // private getDistanceFromUser(itemLatitude: number, itemLongitude: number) {
+
+    //     const distanceToObject = new Observable(observer => {
+    //         navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
+    //             if (!position) {
+    //                 this.router.navigate(['/user/user-error-page', { message: 'can\'t determinate users geolocation' }])
+    //             } else {
+    //                 const userLat = position.coords.latitude;
+    //                 const userLon = position.coords.longitude;
+    //                 const distanceFromObject = this.distanceFromObject(userLat, userLon, itemLatitude, itemLongitude);
+    //                 observer.next(distanceFromObject);
+    //                 observer.complete();
+    //             }
+    //         })
+    //     })
+
+    //     return distanceToObject
+
+    // }
+
+
+    // distanceFromObject(latObject: number, lonObject: number, latVisitor: number, lonVisitor: number) {  // generally used geo measurement function
+
+    //     var R = 6378.137; // Radius of earth in KM
+    //     var dLat = latVisitor * Math.PI / 180 - latObject * Math.PI / 180;
+    //     var dLon = lonVisitor * Math.PI / 180 - lonObject * Math.PI / 180;
+    //     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    //         Math.cos(latObject * Math.PI / 180) * Math.cos(latVisitor * Math.PI / 180) *
+    //         Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    //     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    //     var d = R * c;
+    //     return Math.round(d * 1000); // meters
+    // }
 }

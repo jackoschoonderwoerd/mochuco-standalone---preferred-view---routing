@@ -1,20 +1,21 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
-import { Venue } from '../../../shared/models/venue.model';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DocumentData, DocumentReference } from '@angular/fire/firestore';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import * as fromRoot from 'src/app/app.reducer';
-import * as ADMIN from 'src/app/admin/store/admin.actions'
-import { VenuesService } from '../../venues.service';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { Auth } from '@angular/fire/auth';
 import { UiService } from 'src/app/admin/shared/ui.service';
-import { Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { Venue } from '../../../shared/models/venue.model';
+import { VenuesService } from '../../venues.service';
+import * as ADMIN from 'src/app/admin/store/admin.actions'
+import * as fromRoot from 'src/app/app.reducer';
+import { FirebaseError } from '@angular/fire/app';
 
 @Component({
     selector: 'app-venue-name',
@@ -38,6 +39,7 @@ export class VenueNameComponent implements OnInit {
     editmode: boolean = false
     selectedVenue: Venue;
     venue$: Observable<DocumentData>;
+    venueId: string;
     @Output() editmodeChanged = new EventEmitter<boolean>
 
     constructor(
@@ -46,21 +48,26 @@ export class VenueNameComponent implements OnInit {
         private fb: FormBuilder,
         private afAuth: Auth,
         private uiService: UiService,
-        private router: Router
+        private firestoreService: FirestoreService
     ) { }
 
     ngOnInit(): void {
-        this.initForm()
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
+        this.initForm();
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId;
                 this.editmode = true;
-                this.form.patchValue({
-                    name: selectedVenue.name
+                const pathToVenue = `venues/${venueId}`
+                this.firestoreService.getDocument(pathToVenue).subscribe((venue: Venue) => {
+                    if (venue) {
+                        this.form.patchValue({
+                            name: venue.name
+                        })
+                    }
                 })
-                this.selectedVenue = { ...selectedVenue }
-                this.venue$ = this.venuesService.getVenueByVenueId(this.selectedVenue.id)
             }
         })
+
     }
     initForm() {
         this.form = this.fb.group({
@@ -77,48 +84,64 @@ export class VenueNameComponent implements OnInit {
 
 
     addVenue() {
-        const newVenue: Venue = {
+        const venue: Venue = {
             ownerId: this.afAuth.currentUser.uid,
             name: this.form.value.name
         }
-        this.venuesService.addVenue(newVenue)
+        const pathToVenues = `venues`;
+        this.firestoreService.addDoc(pathToVenues, venue)
+            // this.venuesService.addVenue(venue)
             .then((docRef: DocumentReference) => {
-                const venueId = docRef.id
-                this.venue$ = this.venuesService.getVenueByVenueId(venueId);
-                this.addVenueIdToUserVenuesOwned(venueId)
-                newVenue.id = venueId;
-                this.uiService.openSnackbar('venue added');
-                this.store.dispatch(new ADMIN.SetSelectedVenue(newVenue));
-                this.editmodeChanged.emit(true)
-
+                this.venueId = docRef.id
+                console.log(this.venueId)
+                // this.venue$ = this.firestoreService.getDocument(pathToVenue);
+                // this.store.dispatch(new ADMIN.SetAdminVenueId(this.venueId));
             })
-            .catch((err: any) => {
-                this.uiService.openSnackbar(`adding venue failed; ${err.message}`)
-                this.store.dispatch(new ADMIN.SetSelectedVenue(null));
-            });
+            .then(() => {
+                const pathToVenue = `venues/${this.venueId}`
+                this.venue$ = this.firestoreService.getDocument(pathToVenue);
+            })
+            .then(() => {
+                this.updateStore()
+                return 'store updated'
+            })
+            .catch((err: FirebaseError) => {
+                console.log(`failed to add venue; ${err.message}`)
+            })
+            .then((message: string) => {
+                console.log(message)
+                return this.addVenueIdToUserVenuesOwned(this.venueId)
+            })
+            .then((res: any) => {
+                console.log(`venueId added to user venues owned`)
+            })
+            .catch((err: FirebaseError) => {
+                console.log(`failed to add venueId to user-venues owned; ${err.message}`)
+            })
     }
 
-    addVenueIdToUserVenuesOwned(venueId) {
-        this.venuesService.addVenueIdToUser(venueId)
-            .then((res: any) => {
-                this.uiService.openSnackbar('venueId added to user')
-            })
-            .catch((err: any) => {
-                this.uiService.openSnackbar(`failed to add venueId to user; ${err.message}`)
-            })
+    private addVenueIdToUserVenuesOwned(venueId) {
+        return this.venuesService.addVenueIdToUser(venueId)
+    }
+    private updateStore() {
+        this.store.dispatch(new ADMIN.SetAdminVenueId(this.venueId));
     }
 
     updateVenueName() {
-        const updatedVenue = { ...this.selectedVenue };
-        updatedVenue.name = this.form.value.name
-        this.venuesService.setVenue(updatedVenue)
+        // const updatedVenue = { ...this.selectedVenue };
+        // updatedVenue.name = this.form.value.name
+        let name: string = this.form.value.name;
+        name = name.toLowerCase()
+        // this.venuesService.setVenue(updatedVenue)
+        const pathToVenue = `venues/${this.venueId}`
+        this.firestoreService.updateDocument(pathToVenue, { name })
             .then((res) => {
-                this.uiService.openSnackbar('venue updated')
-                this.store.dispatch(new ADMIN.SetSelectedVenue(null));
+                this.uiService.openSnackbar('venue-name updated')
+                // this.store.dispatch(new ADMIN.SetAdminVenueId(null));
             })
             .catch((err: any) => {
-                this.uiService.openSnackbar(`failed to update venue; ${err.message}`);
-                this.store.dispatch(new ADMIN.SetSelectedVenue(null));
+                this.uiService.openSnackbar(`failed to update venue-name; ${err.message}`);
+                // this.store.dispatch(new ADMIN.SetAdminVenueId(null));
             });
     }
 }

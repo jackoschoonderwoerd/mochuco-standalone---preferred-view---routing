@@ -25,8 +25,13 @@ export const routes: Routes = [
     {
         path: 'scanner', component: ScannerComponent
     },
+    // {
+    //     path: 'admin', canActivate: [authGuard],
+    //     loadChildren: () => import('./admin/admin.routes')
+    //         .then(r => r.ADMIN_ROUTES)
+    // },
     {
-        path: 'admin', canActivate: [authGuard],
+        path: 'admin',
         loadChildren: () => import('./admin/admin.routes')
             .then(r => r.ADMIN_ROUTES)
     },

@@ -73,6 +73,15 @@ mat-toolbar {
                 align-items: center;
             }
         }
+        .developer-mode {
+            cursor: pointer;
+            span {
+                color: var(--moc-white);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
         .account {
             // border: 1px solid pink;
             span {

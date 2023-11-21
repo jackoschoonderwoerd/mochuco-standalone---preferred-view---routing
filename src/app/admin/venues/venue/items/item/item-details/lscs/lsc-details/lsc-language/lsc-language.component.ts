@@ -13,6 +13,7 @@ import { UiService } from 'src/app/admin/shared/ui.service';
 import { FirebaseError } from '@angular/fire/app';
 import * as ADMIN from 'src/app/admin/store/admin.actions';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-lsc-language',
@@ -33,96 +34,90 @@ export class LscLanguageComponent implements OnInit {
     languagesSubscription: Subscription;
     languages: string[]
     availableLanguages: string[] = []
+    venueId: string;
+    itemId: string;
+    language: string
 
 
     constructor(
         private store: Store<fromRoot.State>,
         private lscsService: LscsService,
         private uiService: UiService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private firestoreService: FirestoreService,
+
+
     ) { }
 
     ngOnInit(): void {
-        this.initForm()
-        this.languages = this.lscsService.getLanguages();
-        this.getSelectedVenue()
-            .then(() => {
-                this.getSelectedItem()
-            })
-            .then(() => {
-                this.excludeUsedLanguages();
-                this.getSelectedLsc();
-            })
-    }
-
-    getSelectedVenue() {
-        const promise = new Promise((res, rej) => {
-            this.store.select(fromRoot.getSelectedVenue).pipe(take(1)).subscribe((selectedVenue: Venue) => {
-                if (selectedVenue) {
-                    res(this.selectedVenue = selectedVenue)
-                }
-            })
-        })
-        return promise
-    }
-    getSelectedItem() {
-        const promise = new Promise((res, rej) => {
-            this.store.select(fromRoot.getSelectedItem).pipe(take(1)).subscribe((selectedItem: Item) => {
-                if (selectedItem) {
-                    res(this.selectedItem = selectedItem)
-                }
-            })
-        })
-        return promise
-    }
-    getSelectedLsc() {
-        this.lsc$ = this.store.select(fromRoot.getSelectedLSC)
-        this.store.select(fromRoot.getSelectedLSC).pipe(take(1)).subscribe((selectedLsc: LSC) => {
-            if (selectedLsc) {
-                this.editmode = true;
-                this.selectedLsc = selectedLsc
+        this.initForm();
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.itemId = itemId;
+                        this.store.select(fromRoot.getAdminLanguage).subscribe((language: string) => {
+                            if (language) {
+                                this.language = language
+                                this.editmode = true;
+                                this.patchForm(language)
+                            } else {
+                                this.editmode = false;
+                                this.getAvailableLanguages(venueId, itemId)
+                            }
+                        })
+                    }
+                })
             }
         })
+
     }
 
-    initForm() {
+
+    private initForm() {
         this.form = this.fb.group({
             selectLanguage: new FormControl('null', [Validators.required])
         })
     }
-    excludeUsedLanguages() {
-        this.lscsService.getLscs(this.selectedVenue.id, this.selectedItem.id)
-            .subscribe((lscs: LSC[]) => {
-                let occupiedLanguges: string[] = []
-                lscs.forEach((lsc: LSC) => {
-                    occupiedLanguges.push(lsc.language);
-                })
-                console.log(occupiedLanguges)
-                this.languages.forEach((language: string) => {
-                    if (!occupiedLanguges.includes(language)) {
-                        this.availableLanguages.push(language)
-                        console.log(this.availableLanguages);
-                    }
-                })
-            })
+    private patchForm(language: string) {
+        this.form.patchValue({
+            selectLanguage: language
+        })
+    }
+    private getAvailableLanguages(venueId: string, itemId: string) {
+        this.lscsService.getAvailableLanguages(venueId, itemId).then((availableLanguages: string[]) => {
+            this.availableLanguages = availableLanguages
+        })
     }
 
 
-    onLanguageSelected(e) {
+    onLanguageSelected(language: string) {
         const lsc: LSC = {
-            language: e
+            language
         }
-        this.lscsService.addLsc(this.selectedVenue.id, this.selectedItem.id, lsc)
+        console.log(lsc);
+        const path = `venues/${this.venueId}/items/${this.itemId}/languages/${lsc.language}`
+        this.firestoreService.setDoc(path, lsc)
             .then((res: any) => {
-                this.uiService.openSnackbar('lsc added to item');
-                this.selectedLsc = lsc;
-                this.editmode = true;
-                this.store.dispatch(new ADMIN.SetSelectedLSC(lsc))
-                this.editmodeChanged.emit(true)
+                console.log('lsc added')
+                this.editmode = false;
+                this.store.dispatch(new ADMIN.SetAdminLanguage(language))
             })
             .catch((err: FirebaseError) => {
-                this.uiService.openSnackbar(`failed to add lsc to item; ${err.message}`)
+                console.log(`failed to add lsc; ${err.message}`)
             })
+        // this.lscsService.addLsc(this.selectedVenue.id, this.selectedItem.id, lsc)
+        //     .then((res: any) => {
+        //         this.uiService.openSnackbar('lsc added to item');
+        //         this.selectedLsc = lsc;
+        //         this.editmode = true;
+        //         this.store.dispatch(new ADMIN.SetSelectedLSC(lsc))
+        //         this.editmodeChanged.emit(true)
+        //     })
+        //     .catch((err: FirebaseError) => {
+        //         this.uiService.openSnackbar(`failed to add lsc to item; ${err.message}`)
+        //     })
     }
 
 }

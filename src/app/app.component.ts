@@ -75,10 +75,11 @@ export class AppComponent implements OnInit {
     }
     sidenavOpen: boolean = false;
     title = 'mochuco-standalone';
-    someoneIsLoggedIn: boolean = false
+    someoneIsLoggedIn: boolean = false;
     devices: any;
     user$: Observable<FirebaseUser>
     minutesToExpiration: number = 10;
+    isLoggedIn$: Observable<boolean>
 
     constructor(
         private store: Store<fromRoot.State>,
@@ -95,11 +96,12 @@ export class AppComponent implements OnInit {
     ngOnInit(): void {
 
 
-        this.getIds();
-
+        this.isLoggedIn$ = this.store.select(fromRoot.getIsLoggedIn);
 
         onAuthStateChanged(this.afAuth, (user: FirebaseUser) => {
             if (user) {
+                // console.log(user)
+                this.store.dispatch(new AUTH.SetIsLoggedIn(true))
                 this.someoneIsLoggedIn = true;
                 if (user.uid === 'DhwbsQYD4OVm2j7d5ZzZGiGoHXJ2') {
                     this.store.dispatch(new AUTH.SetIsAdmin(true));
@@ -108,7 +110,8 @@ export class AppComponent implements OnInit {
                 this.someoneIsLoggedIn = false;
             }
         })
-        // this.setIds();
+
+        this.getIds();
 
         this.updateLS();
     }
@@ -130,7 +133,7 @@ export class AppComponent implements OnInit {
 
     private checkForLsExpiration() {
         const expirationDate = JSON.parse(localStorage.getItem('adminDataLS')).expirationTimeStamp;
-        console.log(expirationDate)
+        // console.log(expirationDate)
         if (expirationDate < Date.now()) {
             localStorage.removeItem('adminDataLS')
             this.router.navigateByUrl('/auth/login')
@@ -143,7 +146,6 @@ export class AppComponent implements OnInit {
 
     getIds() {
 
-
         const url = new URL(window.location.href);
         const queryParameters = url.searchParams;
 
@@ -153,19 +155,28 @@ export class AppComponent implements OnInit {
         // alert(`app.component itemId:  ${itemId}`)
 
         if (venueId && !itemId) {
-            // alert(`app.component no itemId venueId: ${venueId}`)
-            this.visitorService.storeMainPageItemId(venueId);
-            this.scannerService.getNearestItemId(venueId).then((nearestItemId: string) => {
-                this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId))
-            })
-            this.visitorService.storeVisitorSelectedVenueId(venueId);
+            alert(`app.component no itemId venueId: ${venueId}`)
+            this.scannerService.getMainPageItemId(venueId)
+                .then((mainPageItemId: string) => {
+                    this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+                });
+            // this.visitorService.storeMainPageItemId(venueId);
+            this.scannerService.getNearestItemId(venueId)
+                .then((nearestItemId: string) => {
+                    this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
+                })
+            // this.visitorService.storeVisitorSelectedVenueId(venueId);
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
 
         }
         if (venueId && itemId) {
             // alert(`app.component venueId: ${venueId}, itemId: ${itemId}`)
             // this.visitorService.storeMainPageItemId(venueId);
-            this.visitorService.storeVisitorSelectedVenueId(venueId)
-            this.visitorService.storeVisitorSelectedItemId(itemId)
+
+            // this.visitorService.storeVisitorSelectedVenueId(venueId);
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId));
+            // this.visitorService.storeVisitorSelectedItemId(itemId)
+            this.store.dispatch(new VISITOR.SetVisitorItemId(itemId))
             // this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
         }
         if (!venueId && !itemId) {
@@ -178,7 +189,7 @@ export class AppComponent implements OnInit {
             venueId,
             itemId
         }
-        console.log(`app-component.ts getIds(){} ${venueIdItemId}`)
+        // console.log(`app-component.ts getIds(){} ${venueIdItemId}`)
 
         if (venueIdItemId) {
             return {

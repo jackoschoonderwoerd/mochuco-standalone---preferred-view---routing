@@ -1,0 +1,21 @@
+<div class="app-location-options">
+    <h4>select your location: you are at:</h4>
+    <ul class="items">
+        <li class="item"
+            *ngFor="let item of items$|async">
+            <!-- <div class="name">{{item.name}}</div> -->
+            <div class="coords"
+                *ngIf="item.coordinates">
+                <div class="lat">{{item.coordinates.latitude}}</div>
+                <div class="lon">{{item.coordinates.longitude}}</div>
+            </div>
+            <button mat-raised-button
+                mat-dialog-close
+                color="primary"
+                (click)="onVisitorLocation(item.name, item.coordinates)">
+                visitor location {{item.name}}
+            </button>
+
+        </li>
+    </ul>
+</div>

@@ -1,15 +1,13 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { DocumentData } from '@angular/fire/firestore';
+import { FirebaseError } from '@angular/fire/app';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { Item } from 'src/app/admin/shared/models/item.model';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Observable, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'src/app/app.reducer'
-import { Item } from 'src/app/admin/shared/models/item.model';
-import { DocumentData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { Venue } from 'src/app/admin/shared/models/venue.model';
-import { ItemsService } from '../../../items.service';
-import { UiService } from 'src/app/admin/shared/ui.service';
-import { FirebaseError } from '@angular/fire/app';
 
 
 @Component({
@@ -19,120 +17,95 @@ import { FirebaseError } from '@angular/fire/app';
     templateUrl: './item-is-main-page.component.html',
     styleUrls: ['./item-is-main-page.component.scss']
 })
+
 export class ItemIsMainPageComponent implements OnInit {
 
-    selectedVenue: Venue
-    selectedItem: Item;
-    selectedItem$: Observable<DocumentData>;
     checkboxDisabled: boolean = false;
+    venueId: string;
+    itemId: string;
+    item$: Observable<DocumentData>;
+    editmode: boolean = false
 
 
     constructor(
         private store: Store<fromRoot.State>,
-        private itemsService: ItemsService,
-        private uiService: UiService) { }
+        private firestoreService: FirestoreService) { }
 
     ngOnInit(): void {
-        this.selectedItem$ = this.store.select(fromRoot.getSelectedItem);
-        this.disableCheckbox();
-
-        this.getVenueFromStore()
-            .then((selectedVenue: Venue) => {
-                this.selectedVenue = selectedVenue
-            })
-
-        this.getItemFromStore()
-            .then((selectedItem: Item) => {
-                this.selectedItem = selectedItem
-            });
-    }
-
-    getVenueFromStore() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-                if (selectedVenue) {
-                    resolve(selectedVenue)
-                }
-            })
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId;
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.editmode = true;
+                        this.itemId = itemId;
+                        const pathToItem = `venues/${venueId}/items/${itemId}`
+                        this.item$ = this.firestoreService.getDocument(pathToItem)
+                        this.handleCheckbox()
+                    }
+                })
+            }
         })
-        return promise
     }
+    private handleCheckbox() {
+        this.checkForExistingMainPageItems()
+            .then((mainPageExists: boolean) => {
+                if (mainPageExists) {
+                    this.checkboxDisabled = true;
+                    this.isCurrentItemMainPageItem().then((status: boolean) => {
+                        if (status) {
+                            this.checkboxDisabled = false;
+                        }
+                    })
 
-    getItemFromStore() {
-        const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-                if (selectedItem) {
-                    resolve(selectedItem)
+                } else {
+                    this.checkboxDisabled = false;
                 }
             })
-
-        })
-        return promise
     }
-
-    disableCheckbox() {
-        let mainPageIsTaken
-        this.getVenueFromStore()
-            .then((selectedVenue: Venue) => {
-                return selectedVenue.id
-            })
-            .then((venueId: string) => {
-                return this.checkForExistingMainPageItem(venueId)
-            })
-            .then((mainPageTaken: boolean) => {
-                mainPageIsTaken = mainPageTaken
-                return this.isCurrentItemMainPageItem()
-            })
-            .then((isMainPage) => {
-                if (mainPageIsTaken && !isMainPage) {
-                    this.checkboxDisabled = true
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
-
 
 
     onCheckboxChange(e) {
         console.log(e.checked)
         const status = e.checked;
-        this.itemsService.updateItemIsMainPage(this.selectedVenue.id, this.selectedItem.id, status)
+        const pathToItem = `venues/${this.venueId}/items/${this.itemId}`
+        this.firestoreService.updateDocument(pathToItem, { isMainPage: status })
             .then((res: any) => {
-                this.uiService.openSnackbar('item main page status updated');
+                console.log('mainPageStatus updated');
             })
             .catch((err: FirebaseError) => {
-                this.uiService.openSnackbar(`failed to update main page status; ${err.message}`);
+                console.log(`failed to update mainPageStatus; ${err.message}`)
             })
     }
 
-    checkForExistingMainPageItem(venueId: string) {
-        const mainPageItemArray: Item[] = []
+    private checkForExistingMainPageItems() {
+        let mainPageItemsLength: number = 0
         const promise = new Promise((resolve, reject) => {
-            this.itemsService.getItems(this.selectedVenue.id).subscribe((items: Item[]) => {
+            const pathToItems = `venues/${this.venueId}/items`;
+            this.firestoreService.getCollection(pathToItems).pipe(take(1)).subscribe((items: Item[]) => {
+                console.log(items.length)
                 items.forEach((item: Item) => {
-                    if (item.isMainPage) {
-                        mainPageItemArray.push(item)
+                    console.log(item.isMainPage)
+                    if (item.isMainPage === true) {
+                        mainPageItemsLength = mainPageItemsLength + 1
                     }
                 })
-                if (mainPageItemArray.length) {
+                console.log(mainPageItemsLength)
+                if (mainPageItemsLength > 0) {
+
                     resolve(true)
-                } else {
-                    resolve(false)
                 }
             })
         })
         return promise
     }
 
-    isCurrentItemMainPageItem() {
+    private isCurrentItemMainPageItem() {
         const promise = new Promise((resolve, reject) => {
-            this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-                if (selectedItem && selectedItem.isMainPage) {
-                    resolve(true)
-                } else {
-                    resolve(false)
+            this.item$.subscribe((item: Item) => {
+                if (item) {
+                    resolve(item.isMainPage)
+                    // resolve(true)
                 }
             })
         })

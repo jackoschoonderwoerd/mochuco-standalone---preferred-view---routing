@@ -5,7 +5,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Venue } from 'src/app/admin/shared/models/venue.model';
-import { Coordinates, Item } from 'src/app/admin/shared/models/item.model';
+import { Item } from 'src/app/admin/shared/models/item.model';
+import { Coordinates } from 'src/app/admin/shared/models/coordinates.model';
 import * as fromRoot from 'src/app/app.reducer';
 import { Store } from '@ngrx/store';
 import { ItemsService } from '../../../items.service';
@@ -14,6 +15,8 @@ import { FirebaseError } from '@angular/fire/app';
 import { Observable } from 'rxjs';
 import { DocumentData } from '@angular/fire/firestore';
 import * as ADMIN from 'src/app/admin/store/admin.actions';
+import { StorageService } from 'src/app/admin/admin-services/storage.service';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 @Component({
     selector: 'app-item-coordinates',
@@ -32,52 +35,56 @@ export class ItemCoordinatesComponent implements OnInit {
     form: FormGroup;
     adminSelectedVenue: Venue;
     adminSelectedItem: Item;
-    adminSelectedItem$: Observable<DocumentData>;
+    item$: Observable<DocumentData>;
     inputChanged: boolean = false;
+    venueId: string;
+    itemId: string
 
     constructor(
         private fb: FormBuilder,
         private store: Store<fromRoot.State>,
-        private itemsService: ItemsService,
-        private uiService: UiService
+        private uiService: UiService,
+        private firestoreSerice: FirestoreService
     ) { }
 
     ngOnInit(): void {
         this.initForm();
-        this.adminSelectedItem$ = this.store.select(fromRoot.getSelectedItem);
-        this.getSelectedVenueFromStore();
-        this.getSelectedItemFromStore();
+        this.getItem().then((item: Item) => {
+            if (item.coordinates) {
+                this.patchForm(item)
+            }
+        })
     }
 
+    getItem() {
+        const promise = new Promise((resolve, reject) => {
+            this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+                if (venueId) {
+                    this.venueId = venueId;
+                    this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                        if (itemId) {
+                            this.itemId = itemId;
+                            const pathToItem = `venues/${venueId}/items/${itemId}`;
+                            this.item$ = this.firestoreSerice.getDocument(pathToItem);
+                            this.firestoreSerice.getDocument(pathToItem).subscribe((item: Item) => {
+                                resolve(item)
+                            })
+                        }
+                    })
+                }
+            })
+        })
+        return promise;
+    }
 
     onInputKeyDown() {
         this.inputChanged = true
     }
 
-    getSelectedVenueFromStore() {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.adminSelectedVenue = selectedVenue
-            }
-        })
-    }
-
-    getSelectedItemFromStore() {
-        this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-            if (selectedItem) {
-                this.adminSelectedItem = selectedItem
-                if (selectedItem.coordinates) {
-                    this.patchForm();
-                }
-            }
-        })
-    }
-
-
-    patchForm() {
+    patchForm(item: Item) {
         this.form.patchValue({
-            latitude: this.adminSelectedItem.coordinates.latitude,
-            longitude: this.adminSelectedItem.coordinates.longitude
+            latitude: item.coordinates.latitude,
+            longitude: item.coordinates.longitude
         })
     }
 
@@ -87,29 +94,20 @@ export class ItemCoordinatesComponent implements OnInit {
             longitude: new FormControl(null, [Validators.required])
         })
     }
+
     onUpdateCoordinates() {
         const formValue = this.form.value
+        console.log(formValue)
         const coordinates: Coordinates = {
             latitude: parseFloat(formValue.latitude),
             longitude: parseFloat(formValue.longitude)
         }
-        this.itemsService.updateItemCoordinates(
-            this.adminSelectedVenue.id,
-            this.adminSelectedItem.id,
-            coordinates)
-            .then((res: any) => {
-                this.updateItemInStore();
-                this.uiService.openSnackbar('coordinates updated');
-                this.inputChanged = false;
-            })
-            .catch((err: FirebaseError) => {
-                this.uiService.openSnackbar(`failed to update coordinates; ${err.message}`)
-            });
-
-    }
-    updateItemInStore() {
-        this.itemsService.getItemByItemId(this.adminSelectedVenue.id, this.adminSelectedItem.id).subscribe((updatedItem: Item) => {
-            this.store.dispatch(new ADMIN.SetSelectedItem(updatedItem))
+        console.log(coordinates)
+        const pathToItem = `venues/${this.venueId}/items/${this.itemId}`;
+        this.firestoreSerice.updateDocument(pathToItem, { coordinates: coordinates }).then((res: any) => {
+            console.log(res);
+            this.inputChanged = false;
         })
+
     }
 }

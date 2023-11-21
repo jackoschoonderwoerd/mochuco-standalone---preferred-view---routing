@@ -6,6 +6,6 @@
         [qrdata]="qrDataString"
         [width]="getWidth()"
         [errorCorrectionLevel]="'M'"></qrcode>
-    <div class="item-name">{{selectedItem.name}}</div>
+    <div class="item-name">{{(item$|async)?.name}}</div>
     {{qrDataString}}
 </div>

@@ -7,5 +7,13 @@
     form {
         display: grid;
         grid-template-columns: 1fr;
+        mat-form-field {
+            label {
+                font-style: italic;
+            }
+            input {
+                text-transform: capitalize;
+            }
+        }
     }
 }

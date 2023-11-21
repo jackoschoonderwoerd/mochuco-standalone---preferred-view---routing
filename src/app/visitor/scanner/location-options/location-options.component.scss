@@ -1,0 +1,12 @@
+.app-location-options {
+    padding: 1rem;
+    ul {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        li {
+            border: 1px solid gray;
+            padding: 0.5rem;
+        }
+    }
+}

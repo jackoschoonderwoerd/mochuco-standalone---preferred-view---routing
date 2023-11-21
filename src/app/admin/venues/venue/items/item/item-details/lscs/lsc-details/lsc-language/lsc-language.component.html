@@ -1,8 +1,8 @@
 <div class="app-lsc-laguage nested-component">
     <!-- <div *ngIf="editmode"
         class="selected-language">{{selectedLSC.language}}</div> -->
-
-
+    {{editmode}}
+    <pre>{{selectedLsc|json}}</pre>
     <mat-form-field *ngIf="!editmode"
         class="select-language">
         <label for="">select language</label>

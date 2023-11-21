@@ -73,9 +73,10 @@ export class LoginComponent implements OnInit {
         }
         this.authService.login(loginData)
             .then((userCredential: UserCredential) => {
-                console.log(userCredential.user.uid)
+                this.store.dispatch(new ADMIN.SetIsLoggedIn(true))
                 if (userCredential.user.uid === 'DhwbsQYD4OVm2j7d5ZzZGiGoHXJ2') {
                     this.store.dispatch(new ADMIN.SetIsAdmin(true))
+                    this.uiService.openSnackbar(`${userCredential.user.email} logged in as admin`);
                 }
                 this.uiService.openSnackbar(`${userCredential.user.email} logged in`);
                 this.router.navigateByUrl('/admin/venues')
@@ -84,15 +85,17 @@ export class LoginComponent implements OnInit {
                 this.uiService.openSnackbar(`failed to login user; ${err.message}`)
             })
     }
+
     onNewUser() {
         this.newUser = true;
         this.existingUser = false;
         this.initSignupForm();
     }
+
     initSignupForm() {
         this.signupForm = this.fb.group({
-            displayName: new FormControl('jacko', [Validators.required]),
-            email: new FormControl('jackoboes@gmail.com', [Validators.required]),
+            displayName: new FormControl('jacko @ yahoo', [Validators.required]),
+            email: new FormControl('jackoschoonderwoerd@yahoo.nl', [Validators.required]),
             password: new FormControl('123456', [Validators.required])
         })
     }
@@ -106,7 +109,7 @@ export class LoginComponent implements OnInit {
         }
         this.authService.signup(mochucoUser)
             .then((data: any) => {
-                console.log(data)
+                // console.log(data)
                 this.router.navigateByUrl('/admin/venues');
                 this.uiService.openSnackbar('new user signed up and logged in');
             })
@@ -123,7 +126,7 @@ export class LoginComponent implements OnInit {
         })
         dialogRef.afterClosed().subscribe((email: string) => {
             if (email) {
-                console.log(email)
+                // console.log(email)
                 this.authService.requestNewPassword(email)
                     .then((res: any) => {
                         this.uiService.openSnackbar('email request new password sent')
@@ -133,5 +136,8 @@ export class LoginComponent implements OnInit {
                     })
             }
         })
+    }
+    onCancel() {
+        this.router.navigateByUrl('scan-result');
     }
 }

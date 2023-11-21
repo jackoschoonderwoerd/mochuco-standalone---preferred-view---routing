@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { User as FirebaseUser } from "@angular/fire/auth";
-import { Observable } from 'rxjs';
+import { Observable, first, take } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as fromRoot from 'src/app/app.reducer';
 import * as ADMIN from 'src/app/admin/store/admin.actions'
@@ -21,6 +21,7 @@ import { LscsService } from 'src/app/admin/venues/venue/items/item/item-details/
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
 import { VenueIdItemId } from 'src/app/admin/shared/models/venueIdItemId';
 import { SetMochucoActive } from '../store/navigation.actions';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 
 export interface Location {
     venueId: string;
@@ -44,6 +45,7 @@ export class HeaderComponent implements OnInit {
     item$: Observable<DocumentData>
     venue$: Observable<DocumentData>;
     isMainPageActive$: Observable<boolean>;
+    developerMode$: Observable<boolean>;
     isMainPageActive: boolean = false;
     isAdmin$: Observable<boolean>;
     mochucoActive: boolean = false;
@@ -63,7 +65,7 @@ export class HeaderComponent implements OnInit {
         private authService: AuthService,
         private store: Store<fromRoot.State>,
         private venuesService: VenuesService,
-
+        private firestoreService: FirestoreService,
         private router: Router
 
 
@@ -71,7 +73,7 @@ export class HeaderComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-
+        this.developerMode$ = this.store.select(fromRoot.getDeveloperMode)
         this.visitorMainPageId$ = this.store.select(fromRoot.getVisitorMainPageId);
         this.visitorSelectedView$ = this.store.select(fromRoot.getVisitorSelectedView)
         this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
@@ -125,13 +127,22 @@ export class HeaderComponent implements OnInit {
 
         this.authService.logout();
     }
+
+    onDeveloperMode() {
+        this.store.select(fromRoot.getDeveloperMode).pipe(first()).subscribe((developerMode: boolean) => {
+            if (!developerMode) {
+                this.store.dispatch(new NAVIGATION.SetDeveloperMode(true))
+            } else {
+                this.store.dispatch(new NAVIGATION.SetDeveloperMode(false))
+            }
+        })
+    }
     onVenues() {
-        this.store.dispatch(new ADMIN.SetSelectedVenue(null));
-        this.store.dispatch(new ADMIN.SetSelectedItem(null));
-        this.store.dispatch(new ADMIN.SetSelectedLSC(null));
+        this.store.dispatch(new ADMIN.SetAdminVenueId(null));
+        this.store.dispatch(new ADMIN.SetAdminItemId(null));
+        this.store.dispatch(new ADMIN.SetAdminLanguage(null));
     }
     onVenueLogo() {
-
         this.store.dispatch(new VISITOR.SetVisitorSelectedView('main-page'));
         this.router.navigateByUrl('scan-result');
     }
@@ -139,7 +150,8 @@ export class HeaderComponent implements OnInit {
 
     getVenueLogoUrl(venueId) {
         const promise = new Promise((resolve, reject) => {
-            this.venuesService.getVenueByVenueId(venueId).subscribe((venue: Venue) => {
+            const pathToVenue = `venues/${venueId}`
+            this.firestoreService.getDocument(pathToVenue).subscribe((venue: Venue) => {
                 resolve(venue.logoUrl);
             })
 

@@ -1,11 +1,12 @@
-import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, HostListener } from '@angular/core';
+import { DocumentData } from '@angular/fire/firestore';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { Observable } from 'rxjs';
+import { QRCodeModule } from 'angularx-qrcode';
+import { SafeUrl } from '@angular/platform-browser';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'src/app/app.reducer'
-import { Venue } from 'src/app/admin/shared/models/venue.model';
-import { Item } from 'src/app/admin/shared/models/item.model';
-import { SafeUrl } from '@angular/platform-browser';
-import { QRCodeModule } from 'angularx-qrcode';
 
 @Component({
     selector: 'app-venue-local-qr',
@@ -16,13 +17,10 @@ import { QRCodeModule } from 'angularx-qrcode';
 })
 export class VenueLocalQrComponent {
 
-    logoPath: string = ''
-
     qrDataString: string
-    selectedVenue: Venue;
-
     innerWidth: number;
-    insufficientDataForQr: boolean = false
+    insufficientDataForQr: boolean = true;
+    venue$: Observable<DocumentData>
 
 
     public myAngularxQrCode: string = "";
@@ -36,22 +34,20 @@ export class VenueLocalQrComponent {
 
     constructor(
         private store: Store<fromRoot.State>,
+        private firestoreService: FirestoreService
 
     ) { }
     ngOnInit(): void {
-        this.innerWidth = window.innerWidth;
-        // console.log(this.innerWidth);
-        // console.log(document.body.offsetWidth)
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                // console.log(selectedVenue)
-                this.selectedVenue = { ...selectedVenue }
-                this.qrDataString = `http://localhost:4200?venueId=${this.selectedVenue.id}`
-
-            } else {
-                console.log('insufficient data');
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.insufficientDataForQr = false;
+                console.log(venueId)
+                this.qrDataString = `http://localhost:4200?venueId=${venueId}`
+                const pathToVenue = `venues/${venueId}`
+                this.venue$ = this.firestoreService.getDocument(pathToVenue);
             }
         })
+        this.innerWidth = window.innerWidth;
     }
     onChangeURL(url: SafeUrl) {
         this.qrCodeDownloadLink = url;

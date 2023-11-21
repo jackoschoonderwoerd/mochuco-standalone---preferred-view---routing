@@ -1,25 +1,26 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+// https://sibiraj-s.github.io/ngx-editor/en/introduction/
+
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'src/app/app.reducer';
-import { Venue } from 'src/app/admin/shared/models/venue.model';
+import { Component, OnInit } from '@angular/core';
+import { DocumentData } from '@angular/fire/firestore';
+import { Editor, Toolbar, toHTML } from 'ngx-editor';
+import { FirebaseError } from '@angular/fire/app';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Item } from 'src/app/admin/shared/models/item.model';
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
-import { SetSelectedLSC } from '../../../../../../../../store/admin.actions';
-import * as ADMIN from 'src/app/admin/store/admin.actions';
-import * as LSCACTIONS from '../../store/lsc.actions'
 import { LscsService } from '../../lscs.service';
-import { UiService } from 'src/app/admin/shared/ui.service';
-import { FirebaseError } from '@angular/fire/app';
 import { MatButtonModule } from '@angular/material/button';
-import { DocumentData } from '@angular/fire/firestore';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NgxEditorModule, toDoc } from 'ngx-editor';
 import { Observable } from 'rxjs';
-import { NgxEditorModule } from 'ngx-editor';
-import { Editor, Toolbar, toHTML } from 'ngx-editor';
-import { schema } from 'ngx-editor/schema';
+import { Store } from '@ngrx/store';
+import { StoreService } from 'src/app/admin/admin-services/store.service';
+import { UiService } from 'src/app/admin/shared/ui.service';
+import { Venue } from 'src/app/admin/shared/models/venue.model';
+import * as fromRoot from 'src/app/app.reducer';
 
 @Component({
     selector: 'app-lsc-description',
@@ -50,102 +51,110 @@ export class LscDescriptionComponent implements OnInit {
     editor: Editor;
     disabled: boolean = false;
     editorContent: any = ''
+    pathToLsc: string;
 
     form = new FormGroup({
         editorContent: new FormControl(null, [Validators.required])
     })
 
     toolbar: Toolbar = [
-        [{ heading: ['h4'] },]
+        [{ heading: ['h4'] },],
+        // ['format_clear']
     ];
+
+    editorConfig = {
+        editable: true,
+        spellcheck: false,
+        height: '10rem',
+        minHeight: '100rem',
+        placeholder: 'Type something. Test the Editor... ヽ(^。^)丿',
+        translate: 'no',
+        // toolbar: Toolbar = [
+        //     ["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"],
+        //     ["fontName", "fontSize", "color"],
+        //     ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "indent", "outdent"],
+        //     ["cut", "copy", "delete", "removeFormat", "undo", "redo"],
+        //     ["paragraph", "blockquote", "removeBlockquote", "horizontalLine", "orderedList", "unorderedList"],
+        //     ["link", "unlink", "image", "video"]
+        // ]
+    };
 
 
     constructor(
-        private fb: FormBuilder,
+
         private store: Store<fromRoot.State>,
         private lscsService: LscsService,
-        private uiService: UiService
+        private uiService: UiService,
+        private storeService: StoreService,
+        private dialogRef: MatDialogRef<LscDescriptionComponent>,
+        private firestoreService: FirestoreService
     ) {
 
     }
 
     ngOnInit(): void {
-        this.isAdmin$ = this.store.select(fromRoot.getIsAdmin);
-        this.lsc$ = this.store.select(fromRoot.getSelectedLSC)
-        this.getSelectedVenue();
-        this.getSelectedItem();
-        this.getSelectedLsc();
-        this.editor = new Editor();
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                this.store.select(fromRoot.getAdminLanguage).subscribe((language: string) => {
+                    this.pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
+                    this.lsc$ = this.firestoreService.getDocument(this.pathToLsc);
+                    this.lsc$.subscribe((lsc: LSC) => {
+                        if (lsc) {
+                            this.patchForm(lsc.description)
+                        }
+                    })
+
+                })
+            })
+        })
+
+        this.editor = new Editor({
+            // content: '',
+            // plugins: [],
+            // schema,
+            // nodeViews: {},
+            // history: true,
+            // keyboardShortcuts: true,
+            // inputRules: true,
+            // schema:
+        });
+        this.dialogRef.updateSize('50rem')
     }
 
     onDescriptionAltered() {
         this.descriptionAltered = true;
+
     }
+
 
 
     onSubmitDescriptionInput(): void {
-        console.log(this.form.value.editorContent);
-        let rawContent = this.form.value.editorContent;
-        // const htmlFromNgxEditor = toHTML(rawContent);
-        // console.log(htmlFromNgxEditor)
 
-        const description = rawContent
-        // const description = rawContent.slice(0, -1)
-        // const description = rawContent.slice(1)
-        // const description = this.form.value.editorContent;
-        this.lscsService.updateLscDescription(
-            this.selectedVenue.id,
-            this.selectedItem.id,
-            this.selectedLsc.language,
-            // rawContent,
-            rawContent
-        )
+        let rawContent = this.form.value.editorContent;
+        const description = toHTML(rawContent)
+
+        this.firestoreService.updateDocument(this.pathToLsc, { description })
             .then((res: any) => {
                 this.uiService.openSnackbar('lsc description updated')
-                const updatedLsc: LSC = {
-                    ...this.selectedLsc,
-                    description: rawContent
-                    // description: rawContent
-                }
                 this.descriptionAltered = false;
-                this.store.dispatch(new ADMIN.SetSelectedLSC(updatedLsc));
+                this.dialogRef.close();
             })
             .catch((err: FirebaseError) => {
                 this.uiService.openSnackbar(`failed to update lsc description; ${err.message}`)
-
+                this.dialogRef.close();
             })
     }
 
-    private getSelectedVenue(): void {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.selectedVenue = selectedVenue
-            }
-        })
-    }
-    private getSelectedItem(): void {
-        this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-            if (selectedItem) {
-                this.selectedItem = selectedItem
-            }
-        })
-    }
-    private getSelectedLsc(): void {
-        this.store.select(fromRoot.getSelectedLSC).subscribe((selectedLsc: LSC) => {
-            if (selectedLsc) {
-                this.selectedLsc = { ...selectedLsc }
-                this.patchForm();
-            }
-        })
-    }
-    private patchForm(): void {
+
+
+
+    private patchForm(description): void {
         this.form.patchValue({
-            editorContent: this.selectedLsc.description
+            editorContent: toDoc(description)
         })
     }
 
-    ngOnDestroy(): void {
-        this.editor.destroy()
+    onCancel() {
+        this.dialogRef.close();
     }
-
 }

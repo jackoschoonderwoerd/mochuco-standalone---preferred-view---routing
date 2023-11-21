@@ -41,6 +41,8 @@ import { Observable, Subscription, take } from 'rxjs';
 import * as fromRoot from 'src/app/app.reducer';
 import * as UI from 'src/app/admin/shared/ui.actions'
 import { StatisticsService } from '../../../../statistics/statistics.service';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { Item } from 'src/app/admin/shared/models/item.model';
 
 
 @Injectable({
@@ -69,33 +71,42 @@ export class LscsService {
         private firestore: Firestore,
         private storage: Storage,
         private store: Store,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private firestoreService: FirestoreService
     ) { }
 
-    getLanguages() {
-        return this.languages;
+
+
+    getAvailableLanguages(venueId, itemId) {
+        let availableLanguages: string[] = [];
+        let occupiedLanguages: string[] = [];
+        const promise = new Promise((resolve, reject) => {
+            const pathToLscs = `venues/${venueId}/items/${itemId}/languages`
+            this.firestoreService.getCollection(pathToLscs)
+                .subscribe((lscs: LSC[]) => {
+                    lscs.forEach((lsc: LSC) => {
+                        occupiedLanguages.push(lsc.language)
+                    })
+                    this.languages.forEach((language: string) => {
+                        const index = occupiedLanguages.findIndex((occupiedLanguage: string) => {
+                            return occupiedLanguage === language
+                        })
+                        if (index === -1) {
+                            availableLanguages.push(language)
+                        }
+                        resolve(availableLanguages)
+                    })
+
+                })
+        })
+        return promise
     }
 
-    updateName(name: string) {
-        console.log(name)
-        this.nameUpdatedSubject.next(name)
-    }
-    // updateDescription(description: string) {
-    //     this.descriptionUpdatedSubject.next(description)
-    // }
 
-    updateAvailableLanguages(languages: string[]) {
-        console.log(languages)
-        this.availableLanguagesSubject.next(languages)
-    }
-
-    getlanguages() {
-        return this.languages;
-    }
 
 
     addLsc(venueId: string, itemId: string, lsc: LSC) {
-        console.log('addLscToItem');
+        // console.log('addLscToItem');
         const path = `venues/${venueId}/items/${itemId}/languages/${lsc.language}`;
         const lscRef = doc(this.firestore, path);
         return (setDoc(lscRef, lsc))
@@ -104,7 +115,7 @@ export class LscsService {
     getLsc(venueId: string, itemId: string, language: string) {
         // this.store.dispatch(new UI.SetIsLoading(true));
         this.statisticsService.storeVisitInArray(venueId, itemId, language);
-        console.log(venueId, itemId, language);
+        // console.log(venueId, itemId, language);
         const path = `venues/${venueId}/items/${itemId}/languages/${language}`;
         const lscRef = doc(this.firestore, path);
         // docData(lscRef).subscribe((lsc: LSC) => {
@@ -115,28 +126,22 @@ export class LscsService {
 
     storeLsc(venueId: string, itemId: string) {
         this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((language: string) => {
-            console.log(`lscService 108 - storeLsc(){} ${venueId} - ${itemId} - ${language}`)
+            // console.log(`lscService 108 - storeLsc(){} ${venueId} - ${itemId} - ${language}`)
             const path = `venues/${venueId}/items/${itemId}/languages/${language}`;
             const lscRef = doc(this.firestore, path);
 
         })
     }
 
+    deleteFileFromStorage(path) {
+        const doomedRef = ref(this.storage, path);
+        return deleteObject(doomedRef)
+    }
 
 
-    // getLscs(venueId: string, itemId: string) {
-    //     const promise = new Promise((resolve, reject) => {
-    //         console.log(venueId, itemId)
-    //         const path = `venues/${venueId}/items/${itemId}/languages`
-    //         const lscsRef = collection(this.firestore, path);
-    //         resolve(collectionData(lscsRef))
-    //     })
-    //     return promise
-    //     // return collectionData(lscsRef);
-    // }
 
     getLscs(venueId: string, itemId: string) {
-        console.log('getLscs()', venueId, itemId)
+
         const path = `venues/${venueId}/items/${itemId}/languages`
         const lscsRef = collection(this.firestore, path);
 
@@ -144,18 +149,9 @@ export class LscsService {
         return collectionData(lscsRef);
     }
 
-    updateLSC(venueId: string, itemId: string, lsc: LSC) {
-        console.log('updateLSC')
-        const path = `venues/${venueId}/items/${itemId}/languages/${lsc.language}`;
-        const lscRef = doc(this.firestore, path)
-        return setDoc(lscRef, lsc)
-    }
 
-    deleteLscFromItem(venueId: string, itemId: string, language: string) {
-        const path = `venues/${venueId}/items/${itemId}/languages/${language}`
-        const languageRef = doc(this.firestore, path)
-        return deleteDoc(languageRef)
-    }
+
+
 
     async storeAudioFile(venueId: string, itemId: string, language: string, file: File) {
         if (venueId && itemId && language && file) {
@@ -170,28 +166,6 @@ export class LscsService {
                 console.log(e)
             }
         }
-    }
-    updateAudioUrl(venueId: string, itemId: string, language: string, audioUrl) {
-        const path = `venues/${venueId}/items/${itemId}/languages/${language}`
-        const audioUrlRef = doc(this.firestore, path);
-        return updateDoc(audioUrlRef, { audioUrl: audioUrl })
-    }
-
-    deleteAudioFromStorage(venueId: string, itemId: string, language: string) {
-        const path = `venues/${venueId}/items/${itemId}/languages/${language}`;
-        const audioRef = ref(this.storage, path)
-        return deleteObject(audioRef)
-    }
-    updateLscName(venueId: string, itemId: string, language: string, name: string) {
-        console.log(venueId, itemId, language, name)
-        const path = `venues/${venueId}/items/${itemId}/languages/${language}`
-        const lscRef = doc(this.firestore, path)
-        return updateDoc(lscRef, { name: name })
-    }
-    updateLscDescription(venueId: string, itemId: string, language: string, description: string) {
-        const path = `venues/${venueId}/items/${itemId}/languages/${language}`
-        const lscRef = doc(this.firestore, path)
-        return updateDoc(lscRef, { description })
     }
 
 }

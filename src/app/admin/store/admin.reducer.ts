@@ -1,31 +1,47 @@
 
 
-import { Router } from "@angular/router";
 import { AdminDataLS } from "../shared/models/admin-data-ls.model";
 import { Item } from "../shared/models/item.model";
 import { LSC } from "../shared/models/language-specific-content.model";
 import { Venue } from "../shared/models/venue.model";
-import { IS_LOADING, SELECTED_ITEM, SELECTED_LSC, SELECTED_VENUE } from "./admin.actions"
+import {
+    ADMIN_ITEM_ID,
+    ADMIN_LANGUAGE,
+    ADMIN_VENUE_ID,
+    // IS_LOADING,
+    // SELECTED_ITEM,
+    // SELECTED_LSC,
+    // SELECTED_VENUE
+} from "./admin.actions"
+
 
 
 export interface AdminState {
-    selectedVenue: Venue,
-    selectedItem: Item,
-    selectedLSC: LSC,
+    // selectedVenue: Venue,
+    // selectedItem: Item,
+    // selectedLSC: LSC,
 
+    adminVenueId: string
+    adminItemId: string,
+    adminLanguage: string
 
 }
 
 let initialState: AdminState = {
-    selectedVenue: null,
-    selectedItem: null,
-    selectedLSC: null,
+    // selectedVenue: null,
+    // selectedItem: null,
+    // selectedLSC: null,
+    adminVenueId: null,
+    adminItemId: null,
+    adminLanguage: null
 
 }
 
 // export function setAdminStateFromLs(adminStateFromLS: AdminState) {
 //     initialState = adminStateFromLS;
 // }
+
+
 
 export function adminReducer(state = initialState, action: any) {
     // const router = new Router
@@ -41,25 +57,44 @@ export function adminReducer(state = initialState, action: any) {
         }
     }
     switch (action.type) {
-        case SELECTED_VENUE: {
-            // console.log(action)
+        // case SELECTED_VENUE: {
+        //     // console.log(action)
+        //     return {
+        //         ...state,
+        //         selectedVenue: action.venue
+        //     }
+        // }
+        // case SELECTED_ITEM: {
+        //     return {
+        //         ...state,
+        //         selectedItem: action.item,
+        //     }
+        // }
+        // case SELECTED_LSC: {
+        //     return {
+        //         ...state,
+        //         selectedLSC: action.lsc
+        //     }
+        // }
+        case ADMIN_VENUE_ID: {
             return {
                 ...state,
-                selectedVenue: action.venue
+                adminVenueId: action.venueId
             }
         }
-        case SELECTED_ITEM: {
+        case ADMIN_ITEM_ID: {
             return {
                 ...state,
-                selectedItem: action.item,
+                adminItemId: action.itemId
             }
         }
-        case SELECTED_LSC: {
+        case ADMIN_LANGUAGE: {
             return {
                 ...state,
-                selectedLSC: action.lsc
+                adminLanguage: action.language
             }
         }
+
         default: {
             return state
         }
@@ -67,8 +102,11 @@ export function adminReducer(state = initialState, action: any) {
 }
 
 
-export const getSelectedVenue = (adminState: AdminState) => adminState.selectedVenue;
-export const getSelectedItem = (adminState: AdminState) => adminState.selectedItem;
-export const getSelectedLSC = (adminState: AdminState) => adminState.selectedLSC;
+// export const getSelectedVenue = (adminState: AdminState) => adminState.selectedVenue;
+// export const getSelectedItem = (adminState: AdminState) => adminState.selectedItem;
+// export const getSelectedLSC = (adminState: AdminState) => adminState.selectedLSC;
+export const getAdminVenueId = (adminState: AdminState) => adminState.adminVenueId;
+export const getAdminItemId = (adminState: AdminState) => adminState.adminItemId;
+export const getAdminLanguage = (adminState: AdminState) => adminState.adminLanguage;
 
 

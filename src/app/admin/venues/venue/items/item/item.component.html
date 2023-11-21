@@ -1,14 +1,13 @@
 <div class="item">
 
     <div class="name">
-        &nbsp;
         <span *ngIf="!editmode">{{item.name}}</span>
     </div>
     <div class="buttons">
         <button class="edit"
             mat-mini-fab
             color="primary"
-            (click)="onItemDetails()">
+            (click)="onItemDetails(item.id)">
             <mat-icon aria-hidden="false"
                 aria-label="Example home icon"
                 fontIcon="search"></mat-icon>
@@ -16,7 +15,7 @@
         <button class="edit"
             mat-mini-fab
             color="warn"
-            (click)="onDeleteItem()">
+            (click)="onDeleteItem(item.id)">
             <mat-icon aria-hidden="false"
                 aria-label="Example home icon"
                 fontIcon="delete"></mat-icon>

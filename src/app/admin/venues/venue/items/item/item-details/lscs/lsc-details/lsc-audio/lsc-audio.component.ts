@@ -8,13 +8,17 @@ import { Item } from 'src/app/admin/shared/models/item.model';
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
 import { LscsService } from '../../lscs.service';
 import { DocumentData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { FirebaseError } from '@angular/fire/app';
 import { UiService } from 'src/app/admin/shared/ui.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmComponent } from 'src/app/admin/shared/confirm/confirm.component';
 import * as ADMIN from 'src/app/admin/store/admin.actions';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { StorageService } from 'src/app/admin/admin-services/storage.service';
+import { StorageError } from '@angular/fire/storage';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { StoreService } from 'src/app/admin/admin-services/store.service';
 
 @Component({
     selector: 'app-select-audio',
@@ -36,41 +40,38 @@ export class SelectAudioComponent implements OnInit {
     selectedLsc: LSC;
     lsc$: Observable<DocumentData>
     isLoading: boolean = false;
+    venueId: string;
+    itemId: string;
+    language: string;
+
 
     constructor(
         private store: Store<fromRoot.State>,
-        private lscsService: LscsService,
-        private uiService: UiService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private storageService: StorageService,
+        private firestoreService: FirestoreService,
+
     ) { }
 
     ngOnInit(): void {
-        this.lsc$ = this.store.select(fromRoot.getSelectedLSC);
-        this.getSelectedVenue();
-        this.getSelectedItem();
-        this.getSelectedLsc()
-    }
-    private getSelectedVenue() {
-        this.store.select(fromRoot.getSelectedVenue).subscribe((selectedVenue: Venue) => {
-            if (selectedVenue) {
-                this.selectedVenue = selectedVenue
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            if (venueId) {
+                this.venueId = venueId;
+                this.store.select(fromRoot.getAdminItemId).subscribe((itemId: string) => {
+                    if (itemId) {
+                        this.itemId = itemId;
+                        this.store.select(fromRoot.getAdminLanguage).subscribe((language: string) => {
+                            if (language) {
+                                this.language = language
+                                const pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
+                                this.lsc$ = this.firestoreService.getDocument(pathToLsc)
+                            }
+                        })
+                    }
+                })
             }
         })
-    }
-    private getSelectedItem() {
-        this.store.select(fromRoot.getSelectedItem).subscribe((selectedItem: Item) => {
-            if (selectedItem) {
-                this.selectedItem = selectedItem
-            }
-        })
-    }
-    private getSelectedLsc() {
-        this.store.select(fromRoot.getSelectedLSC).subscribe((selectedLsc: LSC) => {
-            if (selectedLsc) {
-                this.editmode = true;
-                this.selectedLsc = { ...selectedLsc }
-            }
-        })
+
     }
 
     onAudioInputChange(event: any) {
@@ -78,83 +79,50 @@ export class SelectAudioComponent implements OnInit {
         if (event && event.target instanceof Element) {
             const file = event.target.files[0]
             console.log(file);
-            this.lscsService.storeAudioFile(
-                this.selectedVenue.id,
-                this.selectedItem.id,
-                this.selectedLsc.language,
-                file)
-                .then((url: string) => {
-                    this.uiService.openSnackbar(`audio file stored`)
-                    this.lscsService.updateAudioUrl(
-                        this.selectedVenue.id,
-                        this.selectedItem.id,
-                        this.selectedLsc.language,
-                        url)
-                    return url
+            this.storeAudioFile(file)
+                .then((audioUrl: string) => {
+                    return this.updateAudioUrl(audioUrl)
                 })
-                .catch((err: FirebaseError) => {
-                    this.uiService.openSnackbar(`failed to store audio file; ${err.message}`)
-                    this.isLoading = false;
-                })
-                .then((url: string) => {
-                    this.uiService.openSnackbar('updated audio url')
-                    const updatedLsc: LSC = {
-                        ...this.selectedLsc,
-                        audioUrl: url
-                    }
-                    this.store.dispatch(new ADMIN.SetSelectedLSC(updatedLsc));
-                    this.isLoading = false;
-                }).catch((err: FirebaseError) => {
-                    this.uiService.openSnackbar(`failed to update audio url; ${err.message}`);
+                .then((res: any) => {
+                    console.log(res)
                     this.isLoading = false;
                 })
         }
     }
 
     onDeleteAudio() {
-        this.confirmDelete().then((res: boolean) => {
-            if (res) {
-                this.lscsService.deleteAudioFromStorage(
-                    this.selectedVenue.id,
-                    this.selectedItem.id,
-                    this.selectedLsc.language)
-                    .then((res: any) => {
-                        this.uiService.openSnackbar('audio file removed from storage')
-                        this.lscsService.updateAudioUrl(
-                            this.selectedVenue.id,
-                            this.selectedItem.id,
-                            this.selectedLsc.language,
-                            null)
-                    })
-                    .catch((err: FirebaseError) => {
-                        this.uiService.openSnackbar(`failed to remove audio file from storage; ${err.message}`)
-                    })
-                    .then((res: any) => {
-                        this.uiService.openSnackbar(`audio url updated to null`);
-                        this.store.dispatch(new ADMIN.SetSelectedLSC({
-                            ...this.selectedLsc,
-                            audioUrl: null
-                        }));
-                    }).catch((err: FirebaseError) => {
-                        this.uiService.openSnackbar(`failed to update audio url to null; ${err.message}`)
-                    })
-            } else {
-                this.uiService.openSnackbar('deletion audio cancelled')
-            }
-        })
-    }
-
-    confirmDelete() {
         const dialogRef = this.dialog.open(ConfirmComponent, {
             data: {
                 message: 'Are you sure? This will permanently delete the audio file'
             }
         })
-        const promise = new Promise<boolean>((res, rej) => {
-            dialogRef.afterClosed().subscribe((dialogResponse) => {
-                res(dialogResponse)
-            })
+        dialogRef.afterClosed().subscribe((res: boolean) => {
+            if (res) {
+                // const path = `venues/${this.venueId}/items/${this.itemId}/languages/${this.language}`;
+                this.deleteAudioFile()
+                    .then((res: any) => {
+                        return this.updateAudioUrl(null)
+                    })
+                    .then(() => {
+                        console.log('file removed, url updated to null')
+                    })
+            }
         })
-        return promise;
     }
+
+    private storeAudioFile(file: File) {
+        const storagePathToAudioFolder = `venues/${this.venueId}/items/${this.itemId}/languages/${this.language}`
+        return this.storageService.storeObject(storagePathToAudioFolder, file)
+    }
+
+    private deleteAudioFile() {
+        const storagePathToAudioFile = `venues/${this.venueId}/items/${this.itemId}/languages/${this.language}`
+        return this.storageService.deleteObject(storagePathToAudioFile)
+    }
+
+    private updateAudioUrl(audioUrl: string) {
+        const pathToAudioUrl = `venues/${this.venueId}/items/${this.itemId}/languages/${this.language}`
+        return this.firestoreService.updateDocument(pathToAudioUrl, { audioUrl })
+    }
+
 }

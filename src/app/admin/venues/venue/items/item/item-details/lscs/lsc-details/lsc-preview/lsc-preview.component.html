@@ -1,26 +1,40 @@
+<!-- <div class="overlay"> -->
+
+<!-- </div> -->
 <div class="language-preview-component nested-component">
 
     <div class="header-js">preview</div>
+    <!-- <pre>{{lsc$|async|json}}</pre> -->
 
     <div class="preview">
 
         <app-header></app-header>
         <div class="preview-content">
 
-            <div *ngIf="name"
+            <div *ngIf="(lsc$|async)?.name"
                 class="name"
-                [innerHTML]="name">
+                [innerHTML]="(lsc$|async)?.name">
 
             </div>
             <div class="overflow">
                 <img *ngIf="(item$|async)?.imageUrl"
                     [src]="(item$|async)?.imageUrl"
                     alt="">
-                <!-- <ngx-editor></ngx-editor> -->
-                <!-- <app-lsc-description></app-lsc-description> -->
-                <div class="description"
+                <!-- <div class="description"
                     [innerHTML]="description">
+
+                </div> -->
+                <div class="description"
+                    [innerHTML]="(lsc$|async)?.description">
+
                 </div>
+                <!-- <form class="description"
+                    [formGroup]="form">
+                    <ngx-editor [editor]="editor"
+                        readonly="true"
+                        formControlName="editorContent">
+                    </ngx-editor>
+                </form> -->
             </div>
             <div class="audio">
                 <audio *ngIf="(lsc$|async)?.audioUrl"
@@ -33,4 +47,4 @@
 
         <app-footer></app-footer>
     </div>
-</div>
+    <!-- </div> -->

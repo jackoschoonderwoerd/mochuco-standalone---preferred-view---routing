@@ -2,9 +2,9 @@
 
     <div class="header-js">coordinates</div>
     <div class="current-coordinates"
-        *ngIf="(adminSelectedItem$|async)?.coordinates">
-        <div class="latitude"><span>latitude:&nbsp;</span>{{(adminSelectedItem$|async)?.coordinates.latitude}}</div>
-        <div class="longitude"><span>longitude:&nbsp;</span>{{(adminSelectedItem$|async)?.coordinates.longitude}}</div>
+        *ngIf="(item$|async)?.coordinates">
+        <div class="latitude"><span>latitude:&nbsp;</span>{{(item$|async)?.coordinates.latitude}}</div>
+        <div class="longitude"><span>longitude:&nbsp;</span>{{(item$|async)?.coordinates.longitude}}</div>
     </div>
     <form [formGroup]="form">
         <mat-form-field>

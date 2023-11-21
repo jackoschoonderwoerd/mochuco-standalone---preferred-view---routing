@@ -73,7 +73,7 @@ export function visitorReducer(state = initialState, action: any) {
 
             //  console.log(action)
 
-            console.log(action)
+            // console.log(action)
 
             return {
                 ...state,
@@ -83,7 +83,7 @@ export function visitorReducer(state = initialState, action: any) {
         case VISITOR_ITEM_ID: {
 
 
-            console.log(action)
+            // console.log(action)
 
             return {
                 ...state,
@@ -92,7 +92,7 @@ export function visitorReducer(state = initialState, action: any) {
         }
 
         case VISITOR_SELECTED_VIEW: {
-            //  console.log(action)
+            console.log(action)
             return {
                 ...state,
                 visitorSelectedView: action.visitorSelectedView

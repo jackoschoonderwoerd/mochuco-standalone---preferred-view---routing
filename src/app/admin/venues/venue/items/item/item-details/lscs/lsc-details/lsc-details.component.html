@@ -4,23 +4,42 @@
         color="primary"
         (click)="onBackToItemDetails()">back to item details</button>
 
-    <div class="header-js">
-        <span class="language">{{(lsc$|async)?.language}}</span>
-        <span class="title">language specific content for:</span>
-        <span class="content">{{selectedItem?.name}}</span>
+
+
+    <div class="header-js"
+        *ngIf="(item$|async)">
+        <span *ngIf="(lsc$|async)"
+            class="language">{{(lsc$|async)?.language}}</span>
+        <span class="title">LSC for Item:</span>
+        <div class="item-name">{{(item$|async)?.name}}</div>
+
+    </div>
+
+    <div class="header-js"
+        *ngIf="!(lsc$|async)">
+        <span class="language">new lsc for</span>
+        <div class="item-name">{{(item$|async)?.name}}</div>
     </div>
 
 
 
 
-    <app-lsc-language></app-lsc-language>
+    <app-lsc-language *ngIf="!editmode"></app-lsc-language>
 
-    <app-lsc-preview>
-    </app-lsc-preview>
+    <app-lsc-preview></app-lsc-preview>
 
     <app-lsc-name *ngIf="editmode"></app-lsc-name>
 
-    <app-lsc-description *ngIf="editmode"></app-lsc-description>
+    <div *ngIf="editmode"
+        class="description-btn-container">
+        <div class="title">lsc description</div>
+        <button class="description-btn"
+            mat-raised-button
+            color="primary"
+            onEditDescription
+            (click)="onEditDescription()">edit description</button>
+    </div>
+    <!-- <app-lsc-description *ngIf="editmode"></app-lsc-description> -->
 
     <app-select-audio *ngIf="editmode"></app-select-audio>
 

@@ -61,5 +61,9 @@
     <button *ngIf="existingUser"
         class="request-new-password"
         mat-raised-button
-        (click)="onRequestNewPassword()">request new password</button>
+        (click)="onRequestNewPassword()">request new password
+    </button>
+    <button mat-raised-button
+        color="primary"
+        (click)="onCancel()">cancel</button>
 </div>

@@ -18,7 +18,8 @@
             </div>
             <div class="no-description"
                 *ngIf="!(lsc$|async)?.description">
-                description not available in preferred language
+                <!-- description not available in preferred language -->
+                <mat-progress-spinner></mat-progress-spinner>
             </div>
 
             <audio preload="none"

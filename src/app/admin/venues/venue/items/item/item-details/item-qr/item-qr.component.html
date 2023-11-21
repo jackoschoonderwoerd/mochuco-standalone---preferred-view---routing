@@ -6,7 +6,7 @@
         [qrdata]="qrDataString"
         [width]="getWidth()"
         [errorCorrectionLevel]="'M'"></qrcode>
-    <div class="item-name">{{selectedItem.name}}</div>
+    <div class="item-name">{{(item$|async)?.name}}</div>
     <button class="download"
         mat-raised-button
         color="primary">

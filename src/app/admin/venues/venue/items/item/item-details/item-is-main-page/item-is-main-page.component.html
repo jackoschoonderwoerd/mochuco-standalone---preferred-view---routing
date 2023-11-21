@@ -1,9 +1,9 @@
 <div class="is-item-main-page nested-component">
-    <!-- <div class="">mainPageOccupied: {{mainPageOccupied}}</div> -->
+
     <div class="header-js">venue home page</div>
     <mat-checkbox (change)="onCheckboxChange($event)"
         [disabled]="checkboxDisabled"
-        [checked]="selectedItem?.isMainPage">is venue home page</mat-checkbox>
+        [checked]="(item$|async)?.isMainPage">When checked, this item will be shown when venue logo icon in the top navigation bar is selected. This logo will be available as soon as one of the items of that venue is active.</mat-checkbox>
     <div class="info"
         *ngIf="checkboxDisabled">
         This checkbox is disabled because an other item has been selected as main page.

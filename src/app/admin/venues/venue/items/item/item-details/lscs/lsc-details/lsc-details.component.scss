@@ -1,16 +1,18 @@
 .lsc-details-component {
+    margin: auto;
+    max-width: 70rem;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(8, auto);
-    padding: 2rem;
-    gap: 2rem;
+    padding: 1rem;
+    gap: 1rem;
 
     .back-to-item-details {
-        grid-column: 1/-1;
+        grid-column: 1/4;
         grid-row: 1/2;
     }
     .header-js {
-        grid-column: 1/-1;
+        grid-column: 1/4;
         grid-row: 2/3;
         display: flex;
         gap: 1rem;
@@ -28,24 +30,40 @@
 
     app-lsc-language {
         grid-column: 1/4;
-        grid-row: 3/4;
+        // grid-row: 3/4;
     }
     app-lsc-name {
         grid-column: 1/4;
-        grid-row: 4/5;
+        // grid-row: 4/5;
     }
-    app-lsc-description {
+    .description-btn-container {
+        padding: 1rem;
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
         grid-column: 1/4;
-        grid-row: 5/6;
+        .title {
+            text-transform: uppercase;
+            font-size: 1.2rem;
+        }
+        .description-btn {
+            width: 100%;
+        }
+        // grid-row: 5/6;
     }
+    // app-lsc-description {
+    //     grid-column: 1/4;
+    //     // grid-row: 5/6;
+    // }
     app-select-audio {
         grid-column: 1/4;
-        grid-row: 6/7;
+        // grid-row: 6/7;
     }
 
     app-lsc-preview {
         grid-column: 4/-1;
-        grid-row: 3/6;
+        grid-row: 1/6;
     }
 }
 .name-and-description-changed {

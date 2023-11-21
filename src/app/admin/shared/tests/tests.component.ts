@@ -17,6 +17,7 @@ import { LscsService } from '../../venues/venue/items/item/item-details/lscs/lsc
 import { LSC } from '../models/language-specific-content.model';
 import { VenueIdItemId } from '../models/venueIdItemId';
 import { VisitorService } from 'src/app/visitor/visitor.service';
+import { ScannerService } from 'src/app/visitor/scanner/scanner.service';
 
 @Component({
     selector: 'app-tests',
@@ -39,7 +40,8 @@ export class TestsComponent implements OnInit {
         private venuesService: VenuesService,
         private itemsService: ItemsService,
         private lscsService: LscsService,
-        private visitorService: VisitorService
+        private visitorService: VisitorService,
+        private scannerService: ScannerService
     ) { }
 
     ngOnInit(): void {
@@ -52,9 +54,14 @@ export class TestsComponent implements OnInit {
 
     onBlokZeeburgerdijk() {
         this.lscsService.storeLsc(this.venueIdAmsterdamseSchool, this.itemIdBlokZeeburgerDijk)
-        this.visitorService.storeMainPageItemId(this.venueIdAmsterdamseSchool);
-        this.visitorService.storeVisitorSelectedVenueId(this.venueIdAmsterdamseSchool)
-        this.visitorService.storeVisitorSelectedItemId(this.itemIdBlokZeeburgerDijk)
+        // this.visitorService.storeMainPageItemId(this.venueIdAmsterdamseSchool);
+        this.scannerService.getMainPageItemId(this.venueIdAmsterdamseSchool).then((mainPageItemId: string) => {
+            this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+        })
+        this.store.dispatch(new VISITOR.SetVisitorVenueId(this.venueIdAmsterdamseSchool))
+        // this.visitorService.storeVisitorSelectedVenueId(this.venueIdAmsterdamseSchool)
+        this.store.dispatch(new VISITOR.SetVisitorItemId(this.itemIdBlokZeeburgerDijk))
+        // this.visitorService.storeVisitorSelectedItemId(this.itemIdBlokZeeburgerDijk)
 
 
         this.routeToScanResult();

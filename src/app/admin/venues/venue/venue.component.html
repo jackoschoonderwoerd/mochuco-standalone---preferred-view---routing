@@ -1,11 +1,13 @@
 <main class=" child-component venue-component">
+    <div class="editmode">editmode: {{editmode}}</div>
     <button class="cancel"
         mat-raised-button
         color="primary"
         (click)="onBackToVenues()">back to venues
     </button>
     <app-venue-name (editmodeChanged)="editmodeChanged(true)"></app-venue-name>
-    <div class="button-container">
+    <div *ngIf="editmode"
+        class="button-container">
 
         <button class="statistics-button"
             mat-raised-button
@@ -16,10 +18,9 @@
 
     <app-items *ngIf="editmode"></app-items>
     <app-logo *ngIf="editmode"></app-logo>
-    <app-venue-qr></app-venue-qr>
-    <app-venue-local-qr *ngIf="isAdmin$|async"></app-venue-local-qr>
+    <app-venue-qr *ngIf="editmode"></app-venue-qr>
+    <app-venue-local-qr *ngIf="(isAdmin$|async) && editmode"></app-venue-local-qr>
     <!-- <app-venue-image *ngIf="editmode"></app-venue-image> -->
 
     <!-- {{venue$|async|json}} -->
 </main>
-<div class=""></div>

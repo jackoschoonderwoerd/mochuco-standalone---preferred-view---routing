@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Coordinates, Item } from 'src/app/admin/shared/models/item.model';
+import { Item } from 'src/app/admin/shared/models/item.model';
+import { Coordinates } from 'src/app/admin/shared/models/coordinates.model';
 import {
     Storage,
     ref,
     deleteObject,
+
+    listAll,
     uploadBytes,
     uploadString,
     uploadBytesResumable,
@@ -13,6 +16,8 @@ import {
     provideStorage,
     getStorage,
     getBytes,
+    StorageError,
+    list,
 } from '@angular/fire/storage';
 import {
     Firestore,
@@ -29,13 +34,17 @@ import {
     orderBy,
     query,
     where,
-    DocumentData
+    DocumentData,
+    FirestoreError
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import * as fromApp from './../../../../app.reducer';
 import { Store } from '@ngrx/store';
 import { Venue } from 'src/app/admin/shared/models/venue.model';
 import { LSC } from 'src/app/admin/shared/models/language-specific-content.model';
+import { LscsService } from './item/item-details/lscs/lscs.service';
+import { FirebaseError } from '@angular/fire/app';
+
 
 
 @Injectable({
@@ -46,26 +55,48 @@ export class ItemsService {
     constructor(
         private firestore: Firestore,
         private store: Store<fromApp.State>,
-        private storage: Storage
+        private storage: Storage,
+        // private lscsService: LscsService
         // private itemsService: ItemsService
     ) { }
 
-    addItem(venueId: string, item: Item) {
-        const path = `venues/${venueId}/items`
-        const itemRef = collection(this.firestore, path)
-        return addDoc(itemRef, item)
-    }
-
-
-    getItems(venueId) {
-        const path = `venues/${venueId}/items`
-        const itemsRef = collection(this.firestore, path);
-        const itemsQuery = query(itemsRef, orderBy('name'));
-        return collectionData(itemsQuery, { idField: 'id' });
-    }
-    // getMochucoItem() {
+    // addItem(venueId: string, item: Item): Promise<DocumentReference<DocumentData>> {
     //     const path = `venues/${venueId}/items`
+    //     const itemRef = collection(this.firestore, path)
+    //     return addDoc(itemRef, item)
     // }
+
+    // listStoredFiles(path) {
+    //     const languagesRef = ref(this.storage, path);
+    //     const promise = new Promise((resolve, reject) => {
+    //         listAll(languagesRef)
+    //             .then((data: any) => {
+    //                 // console.log(data)
+    //                 const pathsListArray: string[] = []
+    //                 data.items.forEach((item: any) => {
+    //                     // console.log(item._location.path_)
+    //                     pathsListArray.push(item._location.path_)
+    //                 })
+    //                 resolve(pathsListArray)
+    //             })
+
+    //     })
+    //     return promise
+    // }
+
+    // checkForExistingFile(path) {
+    //     const storageRef = ref(this.storage, path)
+    //     return getDownloadURL(storageRef)
+    // }
+
+
+    // getItems(venueId) {
+    //     const path = `venues/${venueId}/items`
+    //     const itemsRef = collection(this.firestore, path);
+    //     const itemsQuery = query(itemsRef, orderBy('name'));
+    //     return collectionData(itemsQuery, { idField: 'id' });
+    // }
+
 
     getMainPageItem(venueId: string) {
         const path = `venues/${venueId}/items`;
@@ -80,17 +111,84 @@ export class ItemsService {
         const itemRef = doc(this.firestore, path)
         return docData(itemRef, { idField: 'id' })
     }
-    deleteItem(venueId: string, itemId: string) {
-        // const promise = new Promise((res, rej) => {
-        // this.store.select(fromApp.getSelectedVenue).subscribe((venue: Venue) => {
-        const path = `venues/${venueId}/items/${itemId}`;
-        const itemRef = doc(this.firestore, path);
-        // res(deleteDoc(itemRef));
-        return deleteDoc(itemRef)
-        // })
-        // })
-        // return promise
+
+    deleteDocumentFromDb(path) {
+        const documentRef = doc(this.firestore, path)
+        return deleteDoc(documentRef)
     }
+
+    deleteItem(venueId: string, itemId: string) {
+        // console.log('deleteItem')
+        const path = `venues/${venueId}/items/${itemId}/itemImage`;
+        const itemImageRef = ref(this.storage, path);
+        return deleteObject(itemImageRef)
+            .then((res: any) => {
+                console.log(`item image removed from storage`);
+            })
+            .catch((err: StorageError) => {
+                console.log(`failed to remove item image from storage; ${err}`)
+            })
+
+    }
+    deleteItemFromFirestoreDB(venueId: string, itemId: string) {
+        console.log(venueId, itemId)
+        this.getLanguagesFromDb(venueId, itemId)
+            .then((languages: string[]) => {
+                // console.log(languages);
+                languages.forEach((language: string) => {
+                    // console.log(language)
+                    const path = `venues/${venueId}/items/${itemId}/languages/${language}`;
+                    const languageRef = doc(this.firestore, path);
+                    return deleteDoc(languageRef)
+                })
+            })
+            .then((data: any) => {
+                // console.log(data)
+            })
+
+    }
+
+    deleteItemFromStorage(venueId: string, itemId: string) {
+        const path = `venues/${venueId}/items/${itemId}/itemImage`;
+        const itemImageRef = ref(this.storage, path);
+        return deleteObject(itemImageRef);
+
+    }
+
+    private getLanguagesFromDb(venueId: string, itemId: string) {
+        console.log('getLanguagesFromDb()');
+        const path = `venues/${venueId}/items/${itemId}/languages`;
+        const lscsRef = collection(this.firestore, path)
+
+        const promise = new Promise((resolve, reject) => {
+            collectionData(lscsRef).subscribe((lscs: LSC[]) => {
+                // console.log(lscs);
+                let languages: string[] = []
+                lscs.forEach((lsc: LSC) => {
+                    // console.log(lsc)
+                    if (lsc.language) {
+                        languages.push(lsc.language)
+                    }
+                    resolve(languages)
+                })
+
+            })
+        })
+        return promise
+    }
+
+    private deleteAudioFileFromStorage(venueId: string, itemId: string, language: string) {
+        const path = `venues/${venueId}/items/${itemId}/languages/${language}`;
+        const languageRef = ref(this.storage, path)
+        return deleteObject(languageRef)
+    }
+    private deleteItemImageFromStorage(venueId: string, itemId: string) {
+        const path = `venues/${venueId}/items/${itemId}`
+        const imageRef = ref(this.storage, path);
+        return deleteObject(imageRef)
+    }
+
+
     updateItemName(venueId: string, itemId: string, name: string) {
         const path = `venues/${venueId}/items/${itemId}`;
         const itemRef = doc(this.firestore, path);
@@ -102,12 +200,12 @@ export class ItemsService {
         const itemRef = doc(this.firestore, path);
         return (updateDoc(itemRef, { isMainPage }))
     }
-    updateItemCoordinates(venueId: string, itemId: string, coordinates: Coordinates) {
-        console.log(coordinates)
-        const path = `venues/${venueId}/items/${itemId}`;
-        const itemRef = doc(this.firestore, path);
-        return updateDoc(itemRef, { coordinates })
-    }
+    // updateItemCoordinates(venueId: string, itemId: string, coordinates: Coordinates) {
+    //     console.log(coordinates)
+    //     const path = `venues/${venueId}/items/${itemId}`;
+    //     const itemRef = doc(this.firestore, path);
+    //     return updateDoc(itemRef, { coordinates })
+    // }
 
 
 
@@ -122,7 +220,7 @@ export class ItemsService {
                 const url = await getDownloadURL(storageRef);
                 return url
             } catch (e: any) {
-                console.log(e)
+                // console.log(e)
             }
         }
     }

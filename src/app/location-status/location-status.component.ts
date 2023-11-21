@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'src/app/app.reducer';
@@ -7,7 +7,7 @@ import { Venue } from '../admin/shared/models/venue.model';
 import { Observable } from 'rxjs';
 import { Item } from '../admin/shared/models/item.model';
 import { LSC } from '../admin/shared/models/language-specific-content.model';
-import { ChangeDetectionStrategy } from '@angular/compiler';
+
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { VenuesService } from '../admin/venues/venues.service';
@@ -41,37 +41,7 @@ export class LocationStatusComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        setTimeout(() => {
-            this.store.select(fromRoot.getSelectedVenue).subscribe((venue: Venue) => {
-                if (venue) {
-                    this.venue = venue;
-                    this.createInnerHtmlVenue(venue.name)
-                    this.venue$ = this.venuesService.getVenueByVenueId(this.venue.id);
-                } else {
-                    this.venue = null;
-                    this.createInnerHtmlVenue(null)
-                }
-            })
-            this.store.select(fromRoot.getSelectedItem).subscribe((item: Item) => {
-                if (item) {
-                    this.item = item;
-                    this.createInnerHtmlItem(item.name)
-                } else {
-                    this.item = null;
-                    this.createInnerHtmlItem(null)
-                }
-            })
-            this.store.select(fromRoot.getSelectedLSC).subscribe((lsc: LSC) => {
-                if (lsc) {
-                    this.lsc = lsc;
-                    this.createInnerHtmlLSC(lsc.language)
-                } else {
-                    this.lsc = null;
-                    this.createInnerHtmlLSC(null)
-                }
-            });
 
-        }, 1000);
     }
 
 
@@ -113,6 +83,6 @@ export class LocationStatusComponent implements OnInit {
     }
     onSelectedItem() {
         this.router.navigateByUrl('/admin/item-details');
-        this.store.dispatch(new ADMIN.SetSelectedLSC(null));
+        this.store.dispatch(new ADMIN.SetAdminLanguage(null));
     }
 }

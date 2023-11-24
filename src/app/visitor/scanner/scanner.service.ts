@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { take } from 'rxjs';
 import { VisitorBearings } from 'src/app/admin/shared/models/visitor-bearings.model.';
+import * as VISITOR from 'src/app/visitor/store/visitor.actions'
 import { VisitorErrorPageComponent } from '../visitor-error-page/visitor-error-page.component';
 import * as fromRoot from 'src/app/app.reducer';
 import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
@@ -29,6 +30,35 @@ export class ScannerService {
         private firestoreService: FirestoreService
     ) { }
 
+    addIdsToStore(provenance, venueId, itemId) {
+        console.log(provenance)
+        if (venueId && !itemId) {
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+            this.getMainPageItemId(venueId)
+                .then((mainPageItemId: string) => {
+                    this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+                });
+            this.getNearestItemId(venueId)
+                .then((nearestItemId: string) => {
+                    this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
+                    this.router.navigateByUrl('admin/scan-result')
+                })
+                .catch((err: any) => {
+                    console.log(err)
+                })
+        } else if (venueId && itemId) {
+            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId));
+            this.getMainPageItemId(venueId)
+                .then((mainPageItemId: string) => {
+                    this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+                })
+            this.store.dispatch(new VISITOR.SetVisitorItemId(itemId))
+            this.router.navigateByUrl('admin/scan-result')
+        } else {
+            console.log('no venueId and no itemId')
+        }
+    }
+
     storeVisitorSelectedVenue(venueId: string) {
         console.log(venueId);
         this.router.navigateByUrl('scan-result')
@@ -36,14 +66,13 @@ export class ScannerService {
 
 
     getNearestItemId(visitorSelectedVenueId: string) {
-        console.log(visitorSelectedVenueId)
         const promise = new Promise((resolve, reject) => {
             this.getVisitorBearings()
                 .then((visitorBearings: VisitorBearings) => {
                     this.getItemsWithCoordinates(visitorSelectedVenueId)
                         .then((itemsWithCoordinates: Item[]) => {
                             this.getNearest(visitorBearings, itemsWithCoordinates).then((nearestItemId: string) => {
-                                console.log('nearestItemId: ', nearestItemId);
+                                // console.log('nearestItemId: ', nearestItemId);
                                 resolve(nearestItemId)
                             })
                         })
@@ -117,8 +146,8 @@ export class ScannerService {
 
     private getNearest(visitorBearings: VisitorBearings, itemsWithCoordinates: Item[]): Promise<any> {
         const itemsWithMetersToVisitorBearings: Item[] = []
-        console.log('itemsWithCoordinates: ', itemsWithCoordinates);
-        console.log('visitorBearings: ', visitorBearings)
+        // console.log('itemsWithCoordinates: ', itemsWithCoordinates);
+        // console.log('visitorBearings: ', visitorBearings)
         const promise = new Promise((resolve, reject) => {
             itemsWithCoordinates.forEach((itemWithCoordinates: Item) => {
                 this.getMetersFromVisitor(
@@ -129,10 +158,10 @@ export class ScannerService {
                 ).then((metersFormVisitorBearings: number) => {
                     itemWithCoordinates.metersFromVisitor = metersFormVisitorBearings
                     itemsWithMetersToVisitorBearings.push(itemWithCoordinates)
-                    console.log('itemsWithCoordinates.length: ', itemsWithCoordinates.length)
-                    console.log('itemsWithMetersToVisitorBearings.length: ', itemsWithMetersToVisitorBearings.length)
+                    // console.log('itemsWithCoordinates.length: ', itemsWithCoordinates.length)
+                    // console.log('itemsWithMetersToVisitorBearings.length: ', itemsWithMetersToVisitorBearings.length)
                     if (itemsWithCoordinates.length === itemsWithMetersToVisitorBearings.length) {
-                        console.log(itemsWithMetersToVisitorBearings)
+                        // console.log(itemsWithMetersToVisitorBearings)
                         const sortedItemsWithMetersToVisitorBearings = itemsWithMetersToVisitorBearings.sort((a: Item, b: Item) => {
                             return a.metersFromVisitor - b.metersFromVisitor
                         })
@@ -148,7 +177,7 @@ export class ScannerService {
     private getMetersFromVisitor(latVisitor: number, lonVisitor: number, latObject: number, lonObject: number) {
         const promise = new Promise((resolve, reject) => {
             if (this.developperMode) {
-                console.log('this.developperMode: ', this.developperMode)
+                // console.log('this.developperMode: ', this.developperMode)
                 const metersFromItem = this.getDistanceBetweenLocations(
                     latObject,
                     lonObject,

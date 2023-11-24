@@ -1,6 +1,11 @@
 <div class="child-component">
+    <div class="header-js">
+        <button mat-raised-button
+            color="primary"
+            (click)="onBackToVenueDetails()">back to venue details</button>
+        <div class="name">
+            {{(venue$|async)?.name}}
+        </div>
+    </div>
     <app-items-list></app-items-list>
-
-
-
 </div>

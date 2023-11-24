@@ -118,7 +118,7 @@ export class AppComponent implements OnInit {
 
     private updateLS() {
         this.store.subscribe((storeData: StoreData) => {
-            // console.log('updating ls', storeData);
+            console.log('updating ls', storeData);
             const now = new Date();
             const key = 'adminDataLS'
             const expirationTime = new Date(now.getTime() + this.minutesToExpiration * 60 * 1000);
@@ -152,58 +152,47 @@ export class AppComponent implements OnInit {
         const venueId = queryParameters.get('venueId')
         const itemId = queryParameters.get('itemId')
 
-        // alert(`app.component itemId:  ${itemId}`)
+        this.scannerService.addIdsToStore('app-component', venueId, itemId)
+        // return
 
-        if (venueId && !itemId) {
-            alert(`app.component no itemId venueId: ${venueId}`)
-            this.scannerService.getMainPageItemId(venueId)
-                .then((mainPageItemId: string) => {
-                    this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
-                });
-            // this.visitorService.storeMainPageItemId(venueId);
-            this.scannerService.getNearestItemId(venueId)
-                .then((nearestItemId: string) => {
-                    this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
-                })
-            // this.visitorService.storeVisitorSelectedVenueId(venueId);
-            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+        // if (venueId && !itemId) {
+        //     console.log(`app.component no itemId venueId: ${venueId}`)
+        //     this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+        //     this.scannerService.getMainPageItemId(venueId)
+        //         .then((mainPageItemId: string) => {
+        //             this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+        //         });
 
-        }
-        if (venueId && itemId) {
-            // alert(`app.component venueId: ${venueId}, itemId: ${itemId}`)
-            // this.visitorService.storeMainPageItemId(venueId);
+        //     this.scannerService.getNearestItemId(venueId)
+        //         .then((nearestItemId: string) => {
+        //             this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
+        //         })
+        //         .catch((err: any) => {
+        //             console.log(err)
+        //         })
 
-            // this.visitorService.storeVisitorSelectedVenueId(venueId);
-            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId));
-            // this.visitorService.storeVisitorSelectedItemId(itemId)
-            this.store.dispatch(new VISITOR.SetVisitorItemId(itemId))
-            // this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
-        }
-        if (!venueId && !itemId) {
-            // alert('no venueId, no itemId')
-            console.log('no venueId, no itemId')
-        }
+        // }
+        // if (venueId && itemId) {
 
-
-        const venueIdItemId: VenueIdItemId = {
-            venueId,
-            itemId
-        }
-        // console.log(`app-component.ts getIds(){} ${venueIdItemId}`)
-
-        if (venueIdItemId) {
-            return {
-                venueIdItemId
-            }
-        }
+        //     this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId));
+        //     this.scannerService.getMainPageItemId(venueId)
+        //         .then((mainPageItemId: string) => {
+        //             this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+        //         })
+        //     this.store.dispatch(new VISITOR.SetVisitorItemId(itemId))
+        // }
+        // if (!venueId && !itemId) {
+        //     console.log('no venueId, no itemId')
+        // }
+        // this.router.navigateByUrl('/scan-result')
     }
 
 
-    private getMediaConstraintsForDevice(deviceId: string, baseMediaTrackConstraints: MediaTrackConstraints) {
-        const result: MediaTrackConstraints = baseMediaTrackConstraints ? baseMediaTrackConstraints : this.DEFAULT_VIDEO_OPTIONS;
-        if (deviceId) {
-            result.deviceId = { exact: deviceId };
-        }
-    }
+    // private getMediaConstraintsForDevice(deviceId: string, baseMediaTrackConstraints: MediaTrackConstraints) {
+    //     const result: MediaTrackConstraints = baseMediaTrackConstraints ? baseMediaTrackConstraints : this.DEFAULT_VIDEO_OPTIONS;
+    //     if (deviceId) {
+    //         result.deviceId = { exact: deviceId };
+    //     }
+    // }
 
 }

@@ -47,10 +47,13 @@ export class ScanResultComponent implements OnInit {
     ) { }
     ngOnInit(): void {
         this.store.select(fromRoot.getVisitorVenueId).subscribe((venueId: string) => {
+            console.log(venueId)
             this.store.select(fromRoot.getVisitorItemId).subscribe((itemId: string) => {
+                console.log(itemId)
                 const pathToItem = `venues/${venueId}/items/${itemId}`;
                 this.item$ = this.firestoreService.getDocument(pathToItem);
                 this.store.select(fromRoot.getVisitorSelectedLanguage).subscribe((language: string) => {
+                    console.log(language)
                     const pathToLsc = `venues/${venueId}/items/${itemId}/languages/${language}`
                     this.lsc$ = this.firestoreService.getDocument(pathToLsc)
 

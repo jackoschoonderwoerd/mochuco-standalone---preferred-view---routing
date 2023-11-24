@@ -137,51 +137,44 @@ export class ScannerComponent implements AfterViewInit, OnInit {
         this.scanner.stop();
         const url = new URL(e[0].value)
         this.store.dispatch(new VISITOR.SetVisitorSelectedView('item'));
+
         const queryParameters = url.searchParams;
         const venueId = queryParameters.get('venueId');
         const itemId = queryParameters.get('itemId');
-        const venueIdItemId: VenueIdItemId = {
-            venueId: venueId,
-            itemId: itemId
-        }
-        this.store.dispatch(new NAVIGATION.SetPreviousItemData(venueIdItemId));
-        if (venueId && !itemId) {
-            console.log('no itemId', venueId, itemId);
-            this.scannerService.getMainPageItemId(venueId).then((mainPageItemId: string) => {
-                this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
-            })
-            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
-            // this.store.dispatch(new ADMIN.SetAdminVenueId(venueId))
-            // return;
-            // this.visitorService.storeMainPageItemId(venueId);
+        this.scannerService.addIdsToStore('scanner component', venueId, itemId)
 
-            this.scannerService.getNearestItemId(venueId)
-                .then((nearestItemId: string) => {
-                    console.log('nearestItemId', nearestItemId);
-                    // this.visitorService.storeVisitorSelectedItemId(nearestItemId);
-                    this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
-                })
-                .catch((err: any) => {
-                    console.error(err);
-                })
-        }
-        if (venueId && itemId) {
-            this.scannerService.getMainPageItemId(venueId).then((mainPageItemId: string) => {
-                this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
-            })
-            // this.store.dispatch(new ADMIN.SetAdminVenueId(venueId))
-            // this.visitorService.storeMainPageItemId(venueId);
-            // this.visitorService.storeVisitorSelectedVenueId(venueId)
-            this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
-            // this.visitorService.storeVisitorSelectedItemId(itemId)
-            this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
-        }
+        // return;
 
-        if (!venueId && !itemId) {
-            console.log('no venueId, no itemId')
-        }
+        // if (venueId && !itemId) {
+        //     console.log('no itemId', venueId, itemId);
+        //     this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+        //     this.scannerService.getMainPageItemId(venueId).then((mainPageItemId: string) => {
+        //         this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+        //     })
 
-        this.router.navigateByUrl('/scan-result')
+        //     this.scannerService.getNearestItemId(venueId)
+        //         .then((nearestItemId: string) => {
+        //             console.log('nearestItemId', nearestItemId);
+        //             this.store.dispatch(new VISITOR.SetVisitorItemId(nearestItemId));
+        //         })
+        //         .catch((err: any) => {
+        //             console.error(err);
+        //         })
+        // }
+        // if (venueId && itemId) {
+        //     this.store.dispatch(new VISITOR.SetVisitorVenueId(venueId))
+        //     this.scannerService.getMainPageItemId(venueId)
+        //         .then((mainPageItemId: string) => {
+        //             this.store.dispatch(new VISITOR.SetVisitorMainPageItemId(mainPageItemId))
+        //         })
+        //     this.store.dispatch(new VISITOR.SetVisitorItemId(itemId));
+        // }
+
+        // if (!venueId && !itemId) {
+        //     console.log('no venueId, no itemId')
+        // }
+
+        // this.router.navigateByUrl('/scan-result')
     }
 
     public handle(action: any, fn: string): void {

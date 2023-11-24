@@ -1,22 +1,33 @@
 <div class="app-item-stats">
-    <mat-form-field>
-        <mat-label>Choose a date</mat-label>
-        <input matInput
-            [matDatepicker]="picker">
-        <mat-datepicker-toggle matIconSuffix
-            [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
+    <div *ngIf="!activeItem"
+        class="select-item">Please select item</div>
+    <mat-spinner *ngIf="spinnerActive"></mat-spinner>
+    <div class="spinner-idle">
 
-    <ul class="visits-list"
-        *ngIf="visitsDataArray">
-        <li class="visits-list-item"
-            *ngFor="let visit of visitsDataArray">
-            <div class="date">{{visit.timestamp|date:'fullDate'}}</div>
-            <div class="time">{{visit.timestamp|date:'fullTime'}}</div>
-            <div class="language">{{visit.language}}</div>
-        </li>
-    </ul>
-    <div class="no-visits"
-        *ngIf="!(visitsDataArray)">no visits</div>
+        <div class="header"
+            *ngIf="(itemVisitsArray$|async)">
+            <div class="item-name">{{(item$|async)?.name}}</div>
+            <!-- <mat-form-field>
+                <mat-label>Pick a date</mat-label>
+                <input matInput
+                    (dateChange)="onDateChange($event)"
+                    [matDatepicker]="picker">
+                <mat-datepicker-toggle matIconSuffix
+                    [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field> -->
+        </div>
+
+        <ul class="item-visits-list">
+            <li class="item-visits-list-item"
+                *ngFor="let visit of (itemVisitsArray$|async)?.visits">
+                <div class="date">{{visit.timestamp|date:"medium"}}</div>
+                <div class="language">{{visit.language}}</div>
+
+            </li>
+        </ul>
+        <div class="no-visits"
+            *ngIf="activeItem && (itemVisitsArray$|async)?.length === 0">no visits for this item</div>
+    </div>
+
 </div>

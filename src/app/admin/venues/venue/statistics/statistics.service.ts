@@ -40,6 +40,12 @@ export class StatisticsService {
         private firestoreService: FirestoreService
     ) { }
 
+    getVisitsByVenue(venueId) {
+        const pathToStatistics = `venues/${venueId}/statistics`;
+        const statisticsRef = collection(this.firestore, pathToStatistics)
+        return collectionData(statisticsRef)
+    }
+
     storeVisitInArray(venueId: string, itemId: string, language: string) {
         this.getVisitsArray(venueId, itemId).pipe(take(1)).subscribe((data: any[]) => {
             console.log(data)
@@ -169,5 +175,9 @@ export class StatisticsService {
             const q = query(statisticsRef, orderBy(active, 'desc'))
             return collectionData(q)
         }
+    }
+    getOrderdVisitsByItemId(venueId: string, itemId: string) {
+        const pathToVisitsArray = `venues/${venueId}/statistics/${itemId}`
+
     }
 }

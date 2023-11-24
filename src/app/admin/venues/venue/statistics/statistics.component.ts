@@ -12,6 +12,11 @@ import { Store } from '@ngrx/store';
 import * as fromRoot from 'src/app/app.reducer';
 import { Venue } from 'src/app/admin/shared/models/venue.model';
 import { ItemsListComponent } from './items-list/items-list.component';
+import { DocumentData } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
+import { Router } from '@angular/router';
+
 
 
 @Component({
@@ -29,14 +34,24 @@ import { ItemsListComponent } from './items-list/items-list.component';
     templateUrl: './statistics.component.html',
     styleUrls: ['./statistics.component.scss']
 })
-export class StatisticsComponent {
+export class StatisticsComponent implements OnInit {
 
-    displayedColumns: string[] = ['id', 'itemName', 'timestamp'];
-    dataSource: MatTableDataSource<VisitData>;
-    venue: Venue;
-    @ViewChild(MatSort) sort: MatSort;
+    venue$: Observable<DocumentData>
 
+    constructor(
+        private store: Store,
+        private firestoreService: FirestoreService,
+        private router: Router) { }
 
+    ngOnInit(): void {
+        this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
+            const pathToVenue = `venues/${venueId}`
+            this.venue$ = this.firestoreService.getDocument(pathToVenue)
+        })
+    }
+    onBackToVenueDetails() {
+        this.router.navigateByUrl('admin/venue')
+    }
 
 
 }

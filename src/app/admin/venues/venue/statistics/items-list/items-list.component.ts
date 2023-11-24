@@ -12,6 +12,7 @@ import * as STATISTICS from '../store/statistics.actions'
 import { Router } from '@angular/router';
 import { FirestoreService } from 'src/app/admin/admin-services/firestore.service';
 import { DocumentData } from '@angular/fire/firestore';
+import { VisitData } from 'src/app/admin/shared/models/visit-data';
 
 @Component({
     selector: 'app-items-list',
@@ -25,10 +26,12 @@ export class ItemsListComponent implements OnInit {
     items$: Observable<Item[]>
     items: Item[];
     venue$: Observable<DocumentData>
+    statistics$: Observable<DocumentData>;
+    selectedItemId: string;
+
 
     constructor(
         private store: Store<fromRoot.State>,
-        private itemsService: ItemsService,
         private router: Router,
         private firestoreService: FirestoreService
     ) { }
@@ -38,17 +41,22 @@ export class ItemsListComponent implements OnInit {
         this.store.select(fromRoot.getAdminVenueId).subscribe((venueId: string) => {
             if (venueId) {
                 console.log(venueId)
-                const pathToVenue = `venues/${venueId}`
-                this.venue$ = this.firestoreService.getDocument(pathToVenue)
+                const pathToStatistics = `venues/${venueId}/statistics`;
+                this.firestoreService.getCollection(pathToStatistics).subscribe((visitsData: VisitData[]) => {
+                    console.log(visitsData)
+                    this.statistics$ = this.firestoreService.getCollection(pathToStatistics)
+                })
+
                 const pathToItems = `venues/${venueId}/items`;
                 this.firestoreService.getCollection(pathToItems).subscribe((items: Item[]) => {
-                    console.log(items)
+                    // console.log(items)
                     this.items = items
                 })
             }
         })
     }
-    onGetStats(itemId: string) {
+    onGetItemStats(itemId: string) {
+        this.selectedItemId = itemId
         this.store.dispatch(new STATISTICS.SetItemIdStatistics(itemId))
     }
     onBackTodetails() {

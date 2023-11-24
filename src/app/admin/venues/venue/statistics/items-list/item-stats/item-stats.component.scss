@@ -1,12 +1,33 @@
 .app-item-stats {
-    .visits-list {
-        .visits-list-item {
-            padding: 0.1rem;
-            border: 1px solid gray;
-            margin-bottom: 0.2rem;
+    // border: 3px solid green;
+    mat-spinner {
+        margin: auto;
+    }
+    .spinner-idle {
+        .header {
+            padding: 1rem;
+            // border: 3px solid yellow;
+            display: flex;
+            justify-content: space-between;
+            .item-name {
+                text-transform: capitalize;
+            }
+            mat-form-field {
+                // flex-direction: end;
+            }
+        }
+        .item-visits-list {
+            // border: 3px solid red;
+            overflow: auto;
+            max-height: 35rem;
+            .item-visits-list-item {
+                padding: 0.2rem 1rem;
 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+                border: 1px solid gray;
+                margin-bottom: 0.2rem;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     }
 }

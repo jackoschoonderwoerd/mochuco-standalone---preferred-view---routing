@@ -49,7 +49,7 @@ export function adminReducer(state = initialState, action: any) {
         const adminDataLS: AdminDataLS = JSON.parse(localStorage.getItem('adminDataLS'))
         // if (adminDataLS && adminDataLS.expirationTimeStamp > Date.now()) {
         if (adminDataLS) {
-
+            console.log(adminDataLS);
             state = adminDataLS.adminState
         } else {
             console.log('data persistance cancelled due to incativity');
